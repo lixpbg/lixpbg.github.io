@@ -123,8 +123,9 @@
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">cd &lt;hexo&gt;</span><br><span class="line">hexo new page tags</span><br></pre></td></tr></table></figure>
 
 <p>打开生成的模板文件 <code>&lt;hexo&gt;/source/tags/index.md</code></p>
+<p>comments: false是用来在改页面不显示评论</p>
 <p>修改模板内容，主要是<strong>type: tags</strong>:</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">title: 标签</span><br><span class="line">date: 2023-04-26 13:53:05</span><br><span class="line">type: tags</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">title: 标签</span><br><span class="line">date: 2023-04-26 13:53:05</span><br><span class="line">type: tags</span><br><span class="line">comments: false</span><br></pre></td></tr></table></figure>
 
 
 
@@ -137,7 +138,7 @@
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">cd &lt;hexo&gt;</span><br><span class="line">hexo new page categories</span><br></pre></td></tr></table></figure>
 
 <p>编辑分类模板 <code>&lt;hexo&gt;/source/categories/index.md</code></p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">title: 分类</span><br><span class="line">date: 2023-04-26 13:59:26</span><br><span class="line">type: categories</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">title: 分类</span><br><span class="line">date: 2023-04-26 13:59:26</span><br><span class="line">type: categories</span><br><span class="line">comments: false</span><br></pre></td></tr></table></figure>
 
 
 
@@ -152,7 +153,7 @@
 
 
 <p>编辑归档 <code>&lt;hexo&gt;/source/archives/index.md</code></p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">title: 归档</span><br><span class="line">date: 2023-04-26 14:23:07</span><br><span class="line">type: archives</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">title: 归档</span><br><span class="line">date: 2023-04-26 14:23:07</span><br><span class="line">type: archives</span><br><span class="line">comments: false</span><br></pre></td></tr></table></figure>
 
 
 
@@ -244,11 +245,11 @@
 </li>
 <li><p>进入控制台，点击“创建应用” 按钮，填写应用名称，选择 开发版，点创建按钮</p>
 </li>
-<li><p>点击刚刚创建的应用卡片，左侧菜单选择设置 —&gt; 应用凭证，可以看到<strong>AppID</strong>和<strong>AppKey</strong></p>
+<li><p>点击刚刚创建的应用卡片，左侧菜单选择设置 —&gt; 应用凭证，可以看到<strong>AppID</strong>、<strong>AppKey</strong>和<strong>REST API 服务器地址</strong></p>
 </li>
 <li><p>选择安全中心，在Web 安全域名 中添加自己的博客域名:<a href="https://xxx.github.io/">https://xxx.github.io/</a></p>
 </li>
-<li><p>编辑valine配置文件&lt;hexo&gt;&#x2F;node_modules&#x2F;hexo-next-valine&#x2F;default.yaml,将appId和appKey分别设置为leancloud平台已创建应用的appId和appKey</p>
+<li><p>编辑valine配置文件&lt;hexo&gt;&#x2F;node_modules&#x2F;hexo-next-valine&#x2F;default.yaml,将appId和appKey分别设置为leancloud平台已创建应用的appId和appKey，然后将rest服务器地址填到serverURLs中(不填会出现Code 401: 未经授权的操作,请检查你的AppId和AppKey)</p>
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># Valine</span><br><span class="line"># For more information: https://valine.js.org, https://github.com/xCss/Valine</span><br><span class="line">valine:</span><br><span class="line">  enable: true</span><br><span class="line">  appId: xxx # Your leancloud application appid</span><br><span class="line">  appKey: xxx # Your leancloud application appkey</span><br><span class="line">  serverURLs: # When the custom domain name is enabled, fill it in here</span><br><span class="line">  placeholder: 撰写评论 # Comment box placeholder</span><br><span class="line">  avatar: mm # Gravatar style</span><br><span class="line">  meta: [nick, mail, link] # Custom comment header</span><br><span class="line">  pageSize: 10 # Pagination size</span><br><span class="line">  lang: zh-CN # Language, available values: en, zh-cn</span><br><span class="line">  # Warning: Do not enable both `valine.visitor` and `leancloud_visitors`.</span><br><span class="line">  visitor: false # Article reading statistic</span><br><span class="line">  comment_count: true # If false, comment count will only be displayed in post page, not in home page</span><br><span class="line">  recordIP: false # Whether to record the commenter IP</span><br><span class="line">  enableQQ: false # Whether to enable the Nickname box to automatically get QQ Nickname and QQ Avatar</span><br><span class="line">  requiredFields: [] # Set required fields: [nick] | [nick, mail]</span><br><span class="line"></span><br></pre></td></tr></table></figure>
 </li>
 <li><p>编辑主题配置文件&lt;hexo&gt;&#x2F;node_modules&#x2F;hexo-theme-next&#x2F;_config.yml，将active设置为valine</p>

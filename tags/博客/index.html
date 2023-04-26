@@ -326,10 +326,10 @@
 <script>
 NexT.utils.loadComments('#valine-comments', () => {
   NexT.utils.getScript('https://cdn.jsdelivr.net/npm/valine@1.4.14/dist/Valine.min.js', () => {
-    new Valine(Object.assign({"enable":true,"appId":"fIktuOrxwICBeX5vyIUmBfbg-gzGzoHsz","appKey":"4zjWsoWvygeHMVrYUx4v9ekh","serverURLs":null,"placeholder":"撰写评论","avatar":"mm","meta":["nick","mail","link"],"pageSize":10,"lang":"zh-CN","visitor":false,"comment_count":true,"recordIP":false,"enableQQ":false,"requiredFields":[]}, {
+    new Valine(Object.assign({"enable":true,"appId":"fIktuOrxwICBeX5vyIUmBfbg-gzGzoHsz","appKey":"4zjWsoWvygeHMVrYUx4v9ekh","serverURLs":"https://fiktuorx.lc-cn-n1-shared.com","placeholder":"撰写评论","avatar":"mm","meta":["nick","mail","link"],"pageSize":10,"lang":"zh-CN","visitor":false,"comment_count":true,"recordIP":false,"enableQQ":false,"requiredFields":[]}, {
       el: '#valine-comments',
       path: "/tags/%E5%8D%9A%E5%AE%A2/",
-      serverURLs: "https://fiktuorx.api.lncldglobal.com"
+      serverURLs: "https://fiktuorx.lc-cn-n1-shared.com"
     }));
   }, window.Valine);
 });
