@@ -234,8 +234,26 @@
 
 
 
+<h3 id="14-配置评论系统"><a href="#14-配置评论系统" class="headerlink" title="14. 配置评论系统"></a>14. 配置评论系统</h3><p>安装valine插件:</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">cd &lt;hexo&gt;</span><br><span class="line">npm install hexo-next-valine</span><br></pre></td></tr></table></figure>
 
 
+
+<ul>
+<li><p>注册<a href="https://www.leancloud.cn/">leancloud</a>账号，认证通过之后登录账号</p>
+</li>
+<li><p>进入控制台，点击“创建应用” 按钮，填写应用名称，选择 开发版，点创建按钮</p>
+</li>
+<li><p>点击刚刚创建的应用卡片，左侧菜单选择设置 —&gt; 应用凭证，可以看到<strong>AppID</strong>和<strong>AppKey</strong></p>
+</li>
+<li><p>选择安全中心，在Web 安全域名 中添加自己的博客域名:<a href="https://xxx.github.io/">https://xxx.github.io/</a></p>
+</li>
+<li><p>编辑valine配置文件&lt;hexo&gt;&#x2F;node_modules&#x2F;hexo-next-valine&#x2F;default.yaml,将appId和appKey分别设置为leancloud平台已创建应用的appId和appKey</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># Valine</span><br><span class="line"># For more information: https://valine.js.org, https://github.com/xCss/Valine</span><br><span class="line">valine:</span><br><span class="line">  enable: true</span><br><span class="line">  appId: xxx # Your leancloud application appid</span><br><span class="line">  appKey: xxx # Your leancloud application appkey</span><br><span class="line">  serverURLs: # When the custom domain name is enabled, fill it in here</span><br><span class="line">  placeholder: 撰写评论 # Comment box placeholder</span><br><span class="line">  avatar: mm # Gravatar style</span><br><span class="line">  meta: [nick, mail, link] # Custom comment header</span><br><span class="line">  pageSize: 10 # Pagination size</span><br><span class="line">  lang: zh-CN # Language, available values: en, zh-cn</span><br><span class="line">  # Warning: Do not enable both `valine.visitor` and `leancloud_visitors`.</span><br><span class="line">  visitor: false # Article reading statistic</span><br><span class="line">  comment_count: true # If false, comment count will only be displayed in post page, not in home page</span><br><span class="line">  recordIP: false # Whether to record the commenter IP</span><br><span class="line">  enableQQ: false # Whether to enable the Nickname box to automatically get QQ Nickname and QQ Avatar</span><br><span class="line">  requiredFields: [] # Set required fields: [nick] | [nick, mail]</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>编辑主题配置文件&lt;hexo&gt;&#x2F;node_modules&#x2F;hexo-theme-next&#x2F;_config.yml，将active设置为valine</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># Multiple Comment System Support</span><br><span class="line">comments:</span><br><span class="line">  # Available values: tabs | buttons</span><br><span class="line">  style: tabs</span><br><span class="line">  # Choose a comment system to be displayed by default.</span><br><span class="line">  # Available values: disqus | disqusjs | changyan | livere | gitalk | utterances</span><br><span class="line">  active: valine</span><br><span class="line">  # Setting `true` means remembering the comment system selected by the visitor.</span><br><span class="line">  storage: true</span><br><span class="line">  # Lazyload all comment systems.</span><br><span class="line">  lazyload: false</span><br><span class="line">  # Modify texts or order for any naves, here are some examples.</span><br><span class="line">  nav:</span><br><span class="line">    #disqus:</span><br><span class="line">    #  text: Load Disqus</span><br><span class="line">    #  order: -1</span><br><span class="line">    #gitalk:</span><br><span class="line">    #  order: -2</span><br></pre></td></tr></table></figure></li>
+</ul>
 <h3 id="参考："><a href="#参考：" class="headerlink" title="参考："></a>参考：</h3><p>next主题: <a href="https://github.com/next-theme/hexo-theme-next">https://github.com/next-theme/hexo-theme-next</a></p>
 <p>hexo官网: <a href="https://hexo.io/zh-cn/docs/">https://hexo.io/zh-cn/docs/</a></p>
 <p><a href="https://monkeylzl.github.io/2021/10/05/Hexo%E4%B8%AD%20Next%20%E4%B8%BB%E9%A2%98%E9%85%8D%E7%BD%AE/">https://monkeylzl.github.io/2021/10/05/Hexo%E4%B8%AD%20Next%20%E4%B8%BB%E9%A2%98%E9%85%8D%E7%BD%AE/</a></p>
