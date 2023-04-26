@@ -230,6 +230,12 @@
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">![](xxx.png) </span><br></pre></td></tr></table></figure>
 
 <p>注意: 这种引用方式typora中图片显示不出来，只有部署之后才能在网站显示</p>
+<h3 id="13-配置代码块样式"><a href="#13-配置代码块样式" class="headerlink" title="13. 配置代码块样式"></a>13. 配置代码块样式</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">codeblock:</span><br><span class="line">  # Code Highlight theme</span><br><span class="line">  # All available themes: https://theme-next.js.org/highlight/</span><br><span class="line">  theme:</span><br><span class="line">    light: default</span><br><span class="line">    dark: default</span><br><span class="line">  prism:</span><br><span class="line">    light: prism-solarizedlight</span><br><span class="line">    dark: prism-solarizedlight</span><br><span class="line">  # Add copy button on codeblock</span><br><span class="line">  copy_button:</span><br><span class="line">    enable: true</span><br><span class="line">    # Available values: default | flat | mac</span><br><span class="line">    style: flat</span><br></pre></td></tr></table></figure>
+
+
+
+
+
 <h3 id="参考："><a href="#参考：" class="headerlink" title="参考："></a>参考：</h3><p>next主题: <a href="https://github.com/next-theme/hexo-theme-next">https://github.com/next-theme/hexo-theme-next</a></p>
 <p>hexo官网: <a href="https://hexo.io/zh-cn/docs/">https://hexo.io/zh-cn/docs/</a></p>
 <p><a href="https://monkeylzl.github.io/2021/10/05/Hexo%E4%B8%AD%20Next%20%E4%B8%BB%E9%A2%98%E9%85%8D%E7%BD%AE/">https://monkeylzl.github.io/2021/10/05/Hexo%E4%B8%AD%20Next%20%E4%B8%BB%E9%A2%98%E9%85%8D%E7%BD%AE/</a></p>
