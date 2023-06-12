@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha256-HtsXJanqjKTc8vVQjO4YMhiqFoXkfBsjBWcX91T1jr8=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"lixpbg.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.15.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"flat"},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"valine","storage":true,"lazyload":false,"nav":null,"activeClass":"valine"},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="书写规则¶规则包含两个部分，一个是依赖关系，一个是生成目标的方法。 在Makefile中，规则的顺序是很重要的，因为，Makefile中只应该有一个最终目标，其它的目标都是被这个目标所连带出来的，所以一定要让make知道你的最终目标是什么。一般来说，定义在Makefile中的目标可能会有很多，但是第一条规则中的目标将被确立为最终的目标。如果第一条规则中的目标有很多个，那么，第一个目标会成为最终的目">
+<meta property="og:type" content="article">
+<meta property="og:title" content="makefile书写规则(三)">
+<meta property="og:url" content="https://lixpbg.github.io/2023/06/12/makefile-3/index.html">
+<meta property="og:site_name" content="lixp的博客">
+<meta property="og:description" content="书写规则¶规则包含两个部分，一个是依赖关系，一个是生成目标的方法。 在Makefile中，规则的顺序是很重要的，因为，Makefile中只应该有一个最终目标，其它的目标都是被这个目标所连带出来的，所以一定要让make知道你的最终目标是什么。一般来说，定义在Makefile中的目标可能会有很多，但是第一条规则中的目标将被确立为最终的目标。如果第一条规则中的目标有很多个，那么，第一个目标会成为最终的目">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-06-12T06:03:40.000Z">
+<meta property="article:modified_time" content="2023-06-12T06:14:37.563Z">
+<meta property="article:author" content="lixp">
+<meta property="article:tag" content="编译">
+<meta property="article:tag" content="make">
+<meta property="article:tag" content="makefile">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://lixpbg.github.io/2023/06/12/makefile-3/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://lixpbg.github.io/2023/06/12/makefile-3/","path":"2023/06/12/makefile-3/","title":"makefile书写规则(三)"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>makefile书写规则(三) | lixp的博客</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">lixp的博客</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">每天进步一点点</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B9%A6%E5%86%99%E8%A7%84%E5%88%99%C2%B6"><span class="nav-text">书写规则</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%A7%84%E5%88%99%E4%B8%BE%E4%BE%8B%C2%B6"><span class="nav-text">规则举例</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%A7%84%E5%88%99%E7%9A%84%E8%AF%AD%E6%B3%95%C2%B6"><span class="nav-text">规则的语法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9C%A8%E8%A7%84%E5%88%99%E4%B8%AD%E4%BD%BF%E7%94%A8%E9%80%9A%E9%85%8D%E7%AC%A6%C2%B6"><span class="nav-text">在规则中使用通配符</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%96%87%E4%BB%B6%E6%90%9C%E5%AF%BB%C2%B6"><span class="nav-text">文件搜寻</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BC%AA%E7%9B%AE%E6%A0%87%C2%B6"><span class="nav-text">伪目标</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A4%9A%E7%9B%AE%E6%A0%87%C2%B6"><span class="nav-text">多目标</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9D%99%E6%80%81%E6%A8%A1%E5%BC%8F%C2%B6"><span class="nav-text">静态模式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%87%AA%E5%8A%A8%E7%94%9F%E6%88%90%E4%BE%9D%E8%B5%96%E6%80%A7%C2%B6"><span class="nav-text">自动生成依赖性</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%82%E8%80%83"><span class="nav-text">参考:</span></a></li></ol></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="lixp"
+      src="/images/avatar1.jpeg">
+  <p class="site-author-name" itemprop="name">lixp</p>
+  <div class="site-description" itemprop="description">好好把握现在，不为昨天而后悔，不为明天而担忧。</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">13</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/" title="GitHub → https:&#x2F;&#x2F;github.com" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:yourname@gmail.com" title="E-Mail → mailto:yourname@gmail.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+  <div class="cc-license animated" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="https://cdnjs.cloudflare.com/ajax/libs/creativecommons-vocabulary/2020.11.3/assets/license_badges/small/by_nc_sa.svg" alt="Creative Commons"></a>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://lixpbg.github.io/2023/06/12/makefile-3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar1.jpeg">
+      <meta itemprop="name" content="lixp">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="lixp的博客">
+      <meta itemprop="description" content="好好把握现在，不为昨天而后悔，不为明天而担忧。">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="makefile书写规则(三) | lixp的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          makefile书写规则(三)
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2023-06-12 14:03:40 / 修改时间：14:14:37" itemprop="dateCreated datePublished" datetime="2023-06-12T14:03:40+08:00">2023-06-12</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%BC%96%E8%AF%91/" itemprop="url" rel="index"><span itemprop="name">编译</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+  
+  <span class="post-meta-item">
+    
+    <span class="post-meta-item-icon">
+      <i class="far fa-comment"></i>
+    </span>
+    <span class="post-meta-item-text">Valine：</span>
+  
+    <a title="valine" href="/2023/06/12/makefile-3/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2023/06/12/makefile-3/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h1 id="书写规则¶"><a href="#书写规则¶" class="headerlink" title="书写规则¶"></a>书写规则<a target="_blank" rel="noopener" href="https://seisman.github.io/how-to-write-makefile/rules.html#id1">¶</a></h1><p>规则包含两个部分，一个是依赖关系，一个是生成目标的方法。</p>
+<p>在Makefile中，规则的顺序是很重要的，因为，Makefile中只应该有一个最终目标，其它的目标都是被这个目标所连带出来的，所以一定要让make知道你的最终目标是什么。一般来说，定义在Makefile中的目标可能会有很多，但是第一条规则中的目标将被确立为最终的目标。如果第一条规则中的目标有很多个，那么，第一个目标会成为最终的目标。make所完成的也就是这个目标。</p>
+<p>好了，还是让我们来看一看如何书写规则。</p>
+<span id="more"></span>
+
+
+
+<h2 id="规则举例¶"><a href="#规则举例¶" class="headerlink" title="规则举例¶"></a>规则举例<a target="_blank" rel="noopener" href="https://seisman.github.io/how-to-write-makefile/rules.html#id2">¶</a></h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">foo.o: foo.c defs.h       # foo模块</span><br><span class="line">    cc -c -g foo.c</span><br></pre></td></tr></table></figure>
+
+<p>看到这个例子，各位应该不是很陌生了，前面也已说过， <code>foo.o</code> 是我们的目标， <code>foo.c</code> 和 <code>defs.h</code> 是目标所依赖的源文件，而只有一个命令 <code>cc -c -g foo.c</code> （以Tab键开头）。这个规则告诉我们两件事：</p>
+<ol>
+<li>文件的依赖关系， <code>foo.o</code> 依赖于 <code>foo.c</code> 和 <code>defs.h</code> 的文件，如果 <code>foo.c</code> 和 <code>defs.h</code> 的文件日期要比 <code>foo.o</code> 文件日期要新，或是 <code>foo.o</code> 不存在，那么依赖关系发生。</li>
+<li>生成或更新 <code>foo.o</code> 文件，就是那个cc命令。它说明了如何生成 <code>foo.o</code> 这个文件。（当然，foo.c文件include了defs.h文件）</li>
+</ol>
+<h2 id="规则的语法¶"><a href="#规则的语法¶" class="headerlink" title="规则的语法¶"></a>规则的语法<a target="_blank" rel="noopener" href="https://seisman.github.io/how-to-write-makefile/rules.html#id3">¶</a></h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">targets : prerequisites</span><br><span class="line">    command</span><br><span class="line">    ...</span><br></pre></td></tr></table></figure>
+
+<p>或是这样：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">targets : prerequisites ; command</span><br><span class="line">    command</span><br><span class="line">    ...</span><br></pre></td></tr></table></figure>
+
+<p>targets是文件名，以空格分开，可以使用通配符。一般来说，我们的目标基本上是一个文件，但也有可能是多个文件。</p>
+<p>command是命令行，如果其不与“target:prerequisites”在一行，那么，必须以 <code>Tab</code> 键开头，如果和prerequisites在一行，那么可以用分号做为分隔。（见上）</p>
+<p>prerequisites也就是目标所依赖的文件（或依赖目标）。如果其中的某个文件要比目标文件要新，那么，目标就被认为是“过时的”，被认为是需要重生成的。这个在前面已经讲过了。</p>
+<p>如果命令太长，你可以使用反斜杠（ <code>\</code> ）作为换行符。make对一行上有多少个字符没有限制。规则告诉make两件事，文件的依赖关系和如何生成目标文件。</p>
+<p>一般来说，make会以UNIX的标准Shell，也就是 <code>/bin/sh</code> 来执行命令。</p>
+<h2 id="在规则中使用通配符¶"><a href="#在规则中使用通配符¶" class="headerlink" title="在规则中使用通配符¶"></a>在规则中使用通配符<a target="_blank" rel="noopener" href="https://seisman.github.io/how-to-write-makefile/rules.html#id4">¶</a></h2><p>如果我们想定义一系列比较类似的文件，我们很自然地就想起使用通配符。make支持三个通配符： <code>*</code> ， <code>?</code> 和 <code>~</code> 。这是和Unix的B-Shell是相同的。</p>
+<p>波浪号（ <code>~</code> ）字符在文件名中也有比较特殊的用途。如果是 <code>~/test</code> ，这就表示当前用户的 <code>$HOME</code> 目录下的test目录。而 <code>~hchen/test</code> 则表示用户hchen的宿主目录下的test 目录。（这些都是Unix下的小知识了，make也支持）而在Windows或是 MS-DOS下，用户没有宿主目录，那么波浪号所指的目录则根据环境变量“HOME”而定。</p>
+<p>通配符代替了你一系列的文件，如 <code>*.c</code> 表示所有后缀为c的文件。一个需要我们注意的是，如果我们的文件名中有通配符，如： <code>*</code> ，那么可以用转义字符 <code>\</code> ，如 <code>\*</code> 来表示真实的 <code>*</code> 字符，而不是任意长度的字符串。</p>
+<p>好吧，还是先来看几个例子吧：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">clean:</span><br><span class="line">    rm -f *.o</span><br></pre></td></tr></table></figure>
+
+<p>其实在这个clean:后面可以加上你想做的一些事情，如果你想看到在编译完后看看main.c的源代码，你可以在加上cat这个命令，例子如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">clean:</span><br><span class="line">    cat main.c</span><br><span class="line">    rm -f *.o</span><br></pre></td></tr></table></figure>
+
+<p>其结果你试一下就知道的。 上面这个例子我不不多说了，这是操作系统Shell所支持的通配符。这是在命令中的通配符。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">print: *.c</span><br><span class="line">    lpr -p $?</span><br><span class="line">    touch print</span><br></pre></td></tr></table></figure>
+
+<p>上面这个例子说明了通配符也可以在我们的规则中，目标print依赖于所有的 <code>.c</code> 文件。其中的 <code>$?</code> 是一个自动化变量，我会在后面给你讲述。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">objects = *.o</span><br></pre></td></tr></table></figure>
+
+<p>上面这个例子，表示了通配符同样可以用在变量中。并不是说 <code>*.o</code> 会展开，不！objects的值就是 <code>*.o</code> 。Makefile中的变量其实就是C&#x2F;C++中的宏。如果你要让通配符在变量中展开，也就是让objects的值是所有 <code>.o</code> 的文件名的集合，那么，你可以这样：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">objects := $(wildcard *.o)</span><br></pre></td></tr></table></figure>
+
+<p>另给一个变量使用通配符的例子：</p>
+<ol>
+<li><p>列出一确定文件夹中的所有 <code>.c</code> 文件。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">objects := $(wildcard *.c)</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>列出(1)中所有文件对应的 <code>.o</code> 文件，在（3）中我们可以看到它是由make自动编译出的:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$(patsubst %.c,%.o,$(wildcard *.c))</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>由(1)(2)两步，可写出编译并链接所有 <code>.c</code> 和 <code>.o</code> 文件</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">objects := $(patsubst %.c,%.o,$(wildcard *.c))</span><br><span class="line">foo : $(objects)</span><br><span class="line">    cc -o foo $(objects)</span><br></pre></td></tr></table></figure></li>
+</ol>
+<p>这种用法由关键字“wildcard”，“patsubst”指出，关于Makefile的关键字，我们将在后面讨论。</p>
+<h2 id="文件搜寻¶"><a href="#文件搜寻¶" class="headerlink" title="文件搜寻¶"></a>文件搜寻<a target="_blank" rel="noopener" href="https://seisman.github.io/how-to-write-makefile/rules.html#id5">¶</a></h2><p>在一些大的工程中，有大量的源文件，我们通常的做法是把这许多的源文件分类，并存放在不同的目录中。所以，当make需要去找寻文件的依赖关系时，你可以在文件前加上路径，但最好的方法是把一个路径告诉make，让make在自动去找。</p>
+<p>Makefile文件中的特殊变量 <code>VPATH</code> 就是完成这个功能的，如果没有指明这个变量，make只会在当前的目录中去找寻依赖文件和目标文件。如果定义了这个变量，那么，make就会在当前目录找不到的情况下，到所指定的目录中去找寻文件了。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">VPATH = src:../headers</span><br></pre></td></tr></table></figure>
+
+<p>上面的定义指定两个目录，“src”和“..&#x2F;headers”，make会按照这个顺序进行搜索。目录由“冒号”分隔。（当然，当前目录永远是最高优先搜索的地方）</p>
+<p>另一个设置文件搜索路径的方法是使用make的“vpath”关键字（注意，它是全小写的），这不是变量，这是一个make的关键字，这和上面提到的那个VPATH变量很类似，但是它更为灵活。它可以指定不同的文件在不同的搜索目录中。这是一个很灵活的功能。它的使用方法有三种：</p>
+<ul>
+<li><p><code>vpath &lt;pattern&gt; &lt;directories&gt;</code></p>
+<p>为符合模式<pattern>的文件指定搜索目录<directories>。</p>
+</li>
+<li><p><code>vpath &lt;pattern&gt;</code></p>
+<p>清除符合模式<pattern>的文件的搜索目录。</p>
+</li>
+<li><p><code>vpath</code></p>
+<p>清除所有已被设置好了的文件搜索目录。</p>
+</li>
+</ul>
+<p>vpath使用方法中的<pattern>需要包含 <code>%</code> 字符。 <code>%</code> 的意思是匹配零或若干字符，（需引用 <code>%</code> ，使用 <code>\</code> ）例如， <code>%.h</code> 表示所有以 <code>.h</code> 结尾的文件。<pattern>指定了要搜索的文件集，而<directories>则指定了&lt; pattern&gt;的文件集的搜索的目录。例如：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vpath %.h ../headers</span><br></pre></td></tr></table></figure>
+
+<p>该语句表示，要求make在“..&#x2F;headers”目录下搜索所有以 <code>.h</code> 结尾的文件。（如果某文件在当前目录没有找到的话）</p>
+<p>我们可以连续地使用vpath语句，以指定不同搜索策略。如果连续的vpath语句中出现了相同的<pattern> ，或是被重复了的<pattern>，那么，make会按照vpath语句的先后顺序来执行搜索。如：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">vpath %.c foo</span><br><span class="line">vpath %   blish</span><br><span class="line">vpath %.c bar</span><br></pre></td></tr></table></figure>
+
+<p>其表示 <code>.c</code> 结尾的文件，先在“foo”目录，然后是“blish”，最后是“bar”目录。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">vpath %.c foo:bar</span><br><span class="line">vpath %   blish</span><br></pre></td></tr></table></figure>
+
+<p>而上面的语句则表示 <code>.c</code> 结尾的文件，先在“foo”目录，然后是“bar”目录，最后才是“blish”目录。</p>
+<h2 id="伪目标¶"><a href="#伪目标¶" class="headerlink" title="伪目标¶"></a>伪目标<a target="_blank" rel="noopener" href="https://seisman.github.io/how-to-write-makefile/rules.html#id6">¶</a></h2><p>最早先的一个例子中，我们提到过一个“clean”的目标，这是一个“伪目标”，</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">clean:</span><br><span class="line">    rm *.o temp</span><br></pre></td></tr></table></figure>
+
+<p>正像我们前面例子中的“clean”一样，既然我们生成了许多文件编译文件，我们也应该提供一个清除它们的“目标”以备完整地重编译而用。 （以“make clean”来使用该目标）</p>
+<p>因为，我们并不生成“clean”这个文件。“伪目标”并不是一个文件，只是一个标签，由于“伪目标”不是文件，所以make无法生成它的依赖关系和决定它是否要执行。我们只有通过显式地指明这个“目标”才能让其生效。当然，“伪目标”的取名不能和文件名重名，不然其就失去了“伪目标”的意义了。</p>
+<p>当然，为了避免和文件重名的这种情况，我们可以使用一个特殊的标记“.PHONY”来显式地指明一个目标是“伪目标”，向make说明，不管是否有这个文件，这个目标就是“伪目标”。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">.PHONY : clean</span><br></pre></td></tr></table></figure>
+
+<p>只要有这个声明，不管是否有“clean”文件，要运行“clean”这个目标，只有“make clean”这样。于是整个过程可以这样写：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">.PHONY : clean</span><br><span class="line">clean :</span><br><span class="line">    rm *.o temp</span><br></pre></td></tr></table></figure>
+
+<p>伪目标一般没有依赖的文件。但是，我们也可以为伪目标指定所依赖的文件。伪目标同样可以作为“默认目标”，只要将其放在第一个。一个示例就是，如果你的Makefile需要一口气生成若干个可执行文件，但你只想简单地敲一个make完事，并且，所有的目标文件都写在一个Makefile中，那么你可以使用“伪目标”这个特性：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">all : prog1 prog2 prog3</span><br><span class="line">.PHONY : all</span><br><span class="line"></span><br><span class="line">prog1 : prog1.o utils.o</span><br><span class="line">    cc -o prog1 prog1.o utils.o</span><br><span class="line"></span><br><span class="line">prog2 : prog2.o</span><br><span class="line">    cc -o prog2 prog2.o</span><br><span class="line"></span><br><span class="line">prog3 : prog3.o sort.o utils.o</span><br><span class="line">    cc -o prog3 prog3.o sort.o utils.o</span><br></pre></td></tr></table></figure>
+
+<p>我们知道，Makefile中的第一个目标会被作为其默认目标。我们声明了一个“all”的伪目标，其依赖于其它三个目标。由于默认目标的特性是，总是被执行的，但由于“all”又是一个伪目标，伪目标只是一个标签不会生成文件，所以不会有“all”文件产生。于是，其它三个目标的规则总是会被决议。也就达到了我们一口气生成多个目标的目的。 <code>.PHONY : all</code> 声明了“all”这个目标为“伪目标”。（注：这里的显式“.PHONY : all” 不写的话一般情况也可以正确的执行，这样make可通过隐式规则推导出， “all” 是一个伪目标，执行make不会生成“all”文件，而执行后面的多个目标。建议：显式写出是一个好习惯。）</p>
+<p>随便提一句，从上面的例子我们可以看出，目标也可以成为依赖。所以，伪目标同样也可成为依赖。看下面的例子：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">.PHONY : cleanall cleanobj cleandiff</span><br><span class="line"></span><br><span class="line">cleanall : cleanobj cleandiff</span><br><span class="line">    rm program</span><br><span class="line"></span><br><span class="line">cleanobj :</span><br><span class="line">    rm *.o</span><br><span class="line"></span><br><span class="line">cleandiff :</span><br><span class="line">    rm *.diff</span><br></pre></td></tr></table></figure>
+
+<p>“make cleanall”将清除所有要被清除的文件。“cleanobj”和“cleandiff”这两个伪目标有点像“子程序”的意思。我们可以输入“make cleanall”和“make cleanobj”和“make cleandiff”命令来达到清除不同种类文件的目的。</p>
+<h2 id="多目标¶"><a href="#多目标¶" class="headerlink" title="多目标¶"></a>多目标<a target="_blank" rel="noopener" href="https://seisman.github.io/how-to-write-makefile/rules.html#id7">¶</a></h2><p>Makefile的规则中的目标可以不止一个，其支持多目标，有可能我们的多个目标同时依赖于一个文件，并且其生成的命令大体类似。于是我们就能把其合并起来。当然，多个目标的生成规则的执行命令不是同一个，这可能会给我们带来麻烦，不过好在我们可以使用一个自动化变量 <code>$@</code> （关于自动化变量，将在后面讲述），这个变量表示着目前规则中所有的目标的集合，这样说可能很抽象，还是看一个例子吧。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">bigoutput littleoutput : text.g</span><br><span class="line">    generate text.g -$(subst output,,$@) &gt; $@</span><br></pre></td></tr></table></figure>
+
+<p>上述规则等价于：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">bigoutput : text.g</span><br><span class="line">    generate text.g -big &gt; bigoutput</span><br><span class="line">littleoutput : text.g</span><br><span class="line">    generate text.g -little &gt; littleoutput</span><br></pre></td></tr></table></figure>
+
+<p>其中， <code>-$(subst output,,$@)</code> 中的 <code>$</code> 表示执行一个Makefile的函数，函数名为subst，后面的为参数。关于函数，将在后面讲述。这里的这个函数是替换字符串的意思， <code>$@</code> 表示目标的集合，就像一个数组， <code>$@</code> 依次取出目标，并执于命令。</p>
+<h2 id="静态模式¶"><a href="#静态模式¶" class="headerlink" title="静态模式¶"></a>静态模式<a target="_blank" rel="noopener" href="https://seisman.github.io/how-to-write-makefile/rules.html#id8">¶</a></h2><p>静态模式可以更加容易地定义多目标的规则，可以让我们的规则变得更加的有弹性和灵活。我们还是先来看一下语法：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&lt;targets ...&gt; : &lt;target-pattern&gt; : &lt;prereq-patterns ...&gt;</span><br><span class="line">    &lt;commands&gt;</span><br><span class="line">    ...</span><br></pre></td></tr></table></figure>
+
+<p>targets定义了一系列的目标文件，可以有通配符。是目标的一个集合。</p>
+<p>target-pattern是指明了targets的模式，也就是的目标集模式。</p>
+<p>prereq-patterns是目标的依赖模式，它对target-pattern形成的模式再进行一次依赖目标的定义。</p>
+<p>这样描述这三个东西，可能还是没有说清楚，还是举个例子来说明一下吧。如果我们的<target-pattern>定义成 <code>%.o</code> ，意思是我们的<target>;集合中都是以 <code>.o</code> 结尾的，而如果我们的<prereq-patterns>定义成 <code>%.c</code> ，意思是对<target-pattern>所形成的目标集进行二次定义，其计算方法是，取<target-pattern>模式中的 <code>%</code> （也就是去掉了 <code>.o</code> 这个结尾），并为其加上 <code>.c</code> 这个结尾，形成的新集合。</p>
+<p>所以，我们的“目标模式”或是“依赖模式”中都应该有 <code>%</code> 这个字符，如果你的文件名中有 <code>%</code> 那么你可以使用反斜杠 <code>\</code> 进行转义，来标明真实的 <code>%</code> 字符。</p>
+<p>看一个例子：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">objects = foo.o bar.o</span><br><span class="line"></span><br><span class="line">all: $(objects)</span><br><span class="line"></span><br><span class="line">$(objects): %.o: %.c</span><br><span class="line">    $(CC) -c $(CFLAGS) $&lt; -o $@</span><br></pre></td></tr></table></figure>
+
+<p>上面的例子中，指明了我们的目标从$object中获取， <code>%.o</code> 表明要所有以 <code>.o</code> 结尾的目标，也就是 <code>foo.o bar.o</code> ，也就是变量 <code>$object</code> 集合的模式，而依赖模式 <code>%.c</code> 则取模式 <code>%.o</code> 的 <code>%</code> ，也就是 <code>foo bar</code> ，并为其加下 <code>.c</code> 的后缀，于是，我们的依赖目标就是 <code>foo.c bar.c</code> 。而命令中的 <code>$&lt;</code> 和 <code>$@</code> 则是自动化变量， <code>$&lt;</code> 表示第一个依赖文件， <code>$@</code> 表示目标集（也就是“foo.o bar.o”）。于是，上面的规则展开后等价于下面的规则：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">foo.o : foo.c</span><br><span class="line">    $(CC) -c $(CFLAGS) foo.c -o foo.o</span><br><span class="line">bar.o : bar.c</span><br><span class="line">    $(CC) -c $(CFLAGS) bar.c -o bar.o</span><br></pre></td></tr></table></figure>
+
+<p>试想，如果我们的 <code>%.o</code> 有几百个，那么我们只要用这种很简单的“静态模式规则”就可以写完一堆规则，实在是太有效率了。“静态模式规则”的用法很灵活，如果用得好，那会是一个很强大的功能。再看一个例子：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">files = foo.elc bar.o lose.o</span><br><span class="line"></span><br><span class="line">$(filter %.o,$(files)): %.o: %.c</span><br><span class="line">    $(CC) -c $(CFLAGS) $&lt; -o $@</span><br><span class="line">$(filter %.elc,$(files)): %.elc: %.el</span><br><span class="line">    emacs -f batch-byte-compile $&lt;</span><br></pre></td></tr></table></figure>
+
+<p>$(filter %.o,$(files))表示调用Makefile的filter函数，过滤“$files”集，只要其中模式为“%.o”的内容。其它的内容，我就不用多说了吧。这个例子展示了Makefile中更大的弹性。</p>
+<h2 id="自动生成依赖性¶"><a href="#自动生成依赖性¶" class="headerlink" title="自动生成依赖性¶"></a>自动生成依赖性<a target="_blank" rel="noopener" href="https://seisman.github.io/how-to-write-makefile/rules.html#id9">¶</a></h2><p>在Makefile中，我们的依赖关系可能会需要包含一系列的头文件，比如，如果我们的main.c中有一句 <code>#include &quot;defs.h&quot;</code> ，那么我们的依赖关系应该是：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">main.o : main.c defs.h</span><br></pre></td></tr></table></figure>
+
+<p>但是，如果是一个比较大型的工程，你必需清楚哪些C文件包含了哪些头文件，并且，你在加入或删除头文件时，也需要小心地修改Makefile，这是一个很没有维护性的工作。为了避免这种繁重而又容易出错的事情，我们可以使用C&#x2F;C++编译的一个功能。大多数的C&#x2F;C++编译器都支持一个“-M”的选项，即自动找寻源文件中包含的头文件，并生成一个依赖关系。例如，如果我们执行下面的命令:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cc -M main.c</span><br></pre></td></tr></table></figure>
+
+<p>其输出是：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">main.o : main.c defs.h</span><br></pre></td></tr></table></figure>
+
+<p>于是由编译器自动生成的依赖关系，这样一来，你就不必再手动书写若干文件的依赖关系，而由编译器自动生成了。需要提醒一句的是，如果你使用GNU的C&#x2F;C++编译器，你得用 <code>-MM</code> 参数，不然， <code>-M</code> 参数会把一些标准库的头文件也包含进来。</p>
+<p>gcc -M main.c的输出是:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">main.o: main.c defs.h /usr/include/stdio.h /usr/include/features.h \</span><br><span class="line">    /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h \</span><br><span class="line">    /usr/lib/gcc-lib/i486-suse-linux/2.95.3/include/stddef.h \</span><br><span class="line">    /usr/include/bits/types.h /usr/include/bits/pthreadtypes.h \</span><br><span class="line">    /usr/include/bits/sched.h /usr/include/libio.h \</span><br><span class="line">    /usr/include/_G_config.h /usr/include/wchar.h \</span><br><span class="line">    /usr/include/bits/wchar.h /usr/include/gconv.h \</span><br><span class="line">    /usr/lib/gcc-lib/i486-suse-linux/2.95.3/include/stdarg.h \</span><br><span class="line">    /usr/include/bits/stdio_lim.h</span><br></pre></td></tr></table></figure>
+
+<p>gcc -MM main.c的输出则是:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">main.o: main.c defs.h</span><br></pre></td></tr></table></figure>
+
+<p>那么，编译器的这个功能如何与我们的Makefile联系在一起呢。因为这样一来，我们的Makefile也要根据这些源文件重新生成，让 Makefile 自己依赖于源文件？这个功能并不现实，不过我们可以有其它手段来迂回地实现这一功能。GNU组织建议把编译器为每一个源文件的自动生成的依赖关系放到一个文件中，为每一个 <code>name.c</code> 的文件都生成一个 <code>name.d</code> 的Makefile文件， <code>.d</code> 文件中就存放对应 <code>.c</code> 文件的依赖关系。</p>
+<p>于是，我们可以写出 <code>.c</code> 文件和 <code>.d</code> 文件的依赖关系，并让make自动更新或生成 <code>.d</code> 文件，并把其包含在我们的主Makefile中，这样，我们就可以自动化地生成每个文件的依赖关系了。</p>
+<p>这里，我们给出了一个模式规则来产生 <code>.d</code> 文件：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">%.d: %.c</span><br><span class="line">    @set -e; rm -f $@; \</span><br><span class="line">    $(CC) -M $(CPPFLAGS) $&lt; &gt; $@.$$$$; \</span><br><span class="line">    sed &#x27;s,\($*\)\.o[ :]*,\1.o $@ : ,g&#x27; &lt; $@.$$$$ &gt; $@; \</span><br><span class="line">    rm -f $@.$$$$</span><br></pre></td></tr></table></figure>
+
+<p>这个规则的意思是，所有的 <code>.d</code> 文件依赖于 <code>.c</code> 文件， <code>rm -f $@</code> 的意思是删除所有的目标，也就是 <code>.d</code> 文件，第二行的意思是，为每个依赖文件 <code>$&lt;</code> ，也就是 <code>.c</code> 文件生成依赖文件， <code>$@</code> 表示模式 <code>%.d</code> 文件，如果有一个C文件是name.c，那么 <code>%</code> 就是 <code>name</code> ， <code>$$$$</code> 意为一个随机编号，第二行生成的文件有可能是“name.d.12345”，第三行使用sed命令做了一个替换，关于sed命令的用法请参看相关的使用文档。第四行就是删除临时文件。</p>
+<p>总而言之，这个模式要做的事就是在编译器生成的依赖关系中加入 <code>.d</code> 文件的依赖，即把依赖关系：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">main.o : main.c defs.h</span><br></pre></td></tr></table></figure>
+
+<p>转成：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">main.o main.d : main.c defs.h</span><br></pre></td></tr></table></figure>
+
+<p>于是，我们的 <code>.d</code> 文件也会自动更新了，并会自动生成了，当然，你还可以在这个 <code>.d</code> 文件中加入的不只是依赖关系，包括生成的命令也可一并加入，让每个 <code>.d</code> 文件都包含一个完整的规则。一旦我们完成这个工作，接下来，我们就要把这些自动生成的规则放进我们的主Makefile中。我们可以使用Makefile的“include”命令，来引入别的Makefile文件（前面讲过），例如：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sources = foo.c bar.c</span><br><span class="line"></span><br><span class="line">include $(sources:.c=.d)</span><br></pre></td></tr></table></figure>
+
+<p>上述语句中的 <code>$(sources:.c=.d)</code> 中的 <code>.c=.d</code> 的意思是做一个替换，把变量 <code>$(sources)</code> 所有 <code>.c</code> 的字串都替换成 <code>.d</code> ，关于这个“替换”的内容，在后面我会有更为详细的讲述。当然，你得注意次序，因为include是按次序来载入文件，最先载入的 <code>.d</code> 文件中的目标会成为默认目标。</p>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考:"></a>参考:</h3><p>转载于: <a target="_blank" rel="noopener" href="https://seisman.github.io/how-to-write-makefile/index.html">https://seisman.github.io/how-to-write-makefile/index.html</a></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          
+
+<div class="post-copyright">
+<ul>
+  <li class="post-copyright-author">
+      <strong>本文作者： </strong>lixp
+  </li>
+  <li class="post-copyright-link">
+      <strong>本文链接：</strong>
+      <a href="https://lixpbg.github.io/2023/06/12/makefile-3/" title="makefile书写规则(三)">https://lixpbg.github.io/2023/06/12/makefile-3/</a>
+  </li>
+  <li class="post-copyright-license">
+      <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/%E7%BC%96%E8%AF%91/" rel="tag"># 编译</a>
+              <a href="/tags/make/" rel="tag"># make</a>
+              <a href="/tags/makefile/" rel="tag"># makefile</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2023/06/12/makefile-2/" rel="prev" title="makefile介绍(二)">
+                  <i class="fa fa-chevron-left"></i> makefile介绍(二)
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2023/06/12/makefile-4/" rel="next" title="makefile书写命令(四)">
+                  makefile书写命令(四) <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments" id="valine-comments"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">lixp</span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+<script>
+NexT.utils.loadComments('#valine-comments', () => {
+  NexT.utils.getScript('https://cdn.jsdelivr.net/npm/valine@1.4.14/dist/Valine.min.js', () => {
+    new Valine(Object.assign({"enable":true,"appId":"fIktuOrxwICBeX5vyIUmBfbg-gzGzoHsz","appKey":"4zjWsoWvygeHMVrYUx4v9ekh","serverURLs":"https://fiktuorx.lc-cn-n1-shared.com","placeholder":"撰写评论","avatar":"mm","meta":["nick","mail","link"],"pageSize":10,"lang":"zh-CN","visitor":false,"comment_count":true,"recordIP":false,"enableQQ":false,"requiredFields":[]}, {
+      el: '#valine-comments',
+      path: "/2023/06/12/makefile-3/",
+      serverURLs: "https://fiktuorx.lc-cn-n1-shared.com"
+    }));
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

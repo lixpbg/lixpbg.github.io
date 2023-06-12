@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha256-HtsXJanqjKTc8vVQjO4YMhiqFoXkfBsjBWcX91T1jr8=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"lixpbg.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.15.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"flat"},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"valine","storage":true,"lazyload":false,"nav":null,"activeClass":"valine"},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="隐含规则¶在我们使用Makefile时，有一些我们会经常使用，而且使用频率非常高的东西，比如，我们编译C&#x2F;C++的源程序为中间目标文件（Unix下是 .o 文件，Windows下是 .obj 文件）。本章讲述的就是一些在Makefile中的“隐含的”，早先约定了的，不需要我们再写出来的规则。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="makefile隐含规则(九)">
+<meta property="og:url" content="https://lixpbg.github.io/2023/06/12/makefile-9/index.html">
+<meta property="og:site_name" content="lixp的博客">
+<meta property="og:description" content="隐含规则¶在我们使用Makefile时，有一些我们会经常使用，而且使用频率非常高的东西，比如，我们编译C&#x2F;C++的源程序为中间目标文件（Unix下是 .o 文件，Windows下是 .obj 文件）。本章讲述的就是一些在Makefile中的“隐含的”，早先约定了的，不需要我们再写出来的规则。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-06-12T06:24:02.000Z">
+<meta property="article:modified_time" content="2023-06-12T06:31:17.689Z">
+<meta property="article:author" content="lixp">
+<meta property="article:tag" content="编译">
+<meta property="article:tag" content="make">
+<meta property="article:tag" content="makefile">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://lixpbg.github.io/2023/06/12/makefile-9/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://lixpbg.github.io/2023/06/12/makefile-9/","path":"2023/06/12/makefile-9/","title":"makefile隐含规则(九)"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>makefile隐含规则(九) | lixp的博客</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">lixp的博客</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">每天进步一点点</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%9A%90%E5%90%AB%E8%A7%84%E5%88%99%C2%B6"><span class="nav-text">隐含规则</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E9%9A%90%E5%90%AB%E8%A7%84%E5%88%99%C2%B6"><span class="nav-text">使用隐含规则</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9A%90%E5%90%AB%E8%A7%84%E5%88%99%E4%B8%80%E8%A7%88%C2%B6"><span class="nav-text">隐含规则一览</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9A%90%E5%90%AB%E8%A7%84%E5%88%99%E4%BD%BF%E7%94%A8%E7%9A%84%E5%8F%98%E9%87%8F%C2%B6"><span class="nav-text">隐含规则使用的变量</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B3%E4%BA%8E%E5%91%BD%E4%BB%A4%E7%9A%84%E5%8F%98%E9%87%8F%E3%80%82%C2%B6"><span class="nav-text">关于命令的变量。</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B3%E4%BA%8E%E5%91%BD%E4%BB%A4%E5%8F%82%E6%95%B0%E7%9A%84%E5%8F%98%E9%87%8F%C2%B6"><span class="nav-text">关于命令参数的变量</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9A%90%E5%90%AB%E8%A7%84%E5%88%99%E9%93%BE%C2%B6"><span class="nav-text">隐含规则链</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9A%E4%B9%89%E6%A8%A1%E5%BC%8F%E8%A7%84%E5%88%99%C2%B6"><span class="nav-text">定义模式规则</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A8%A1%E5%BC%8F%E8%A7%84%E5%88%99%E4%BB%8B%E7%BB%8D%C2%B6"><span class="nav-text">模式规则介绍</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A8%A1%E5%BC%8F%E8%A7%84%E5%88%99%E7%A4%BA%E4%BE%8B%C2%B6"><span class="nav-text">模式规则示例</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%87%AA%E5%8A%A8%E5%8C%96%E5%8F%98%E9%87%8F%C2%B6"><span class="nav-text">自动化变量</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A8%A1%E5%BC%8F%E7%9A%84%E5%8C%B9%E9%85%8D%C2%B6"><span class="nav-text">模式的匹配</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%87%8D%E8%BD%BD%E5%86%85%E5%BB%BA%E9%9A%90%E5%90%AB%E8%A7%84%E5%88%99%C2%B6"><span class="nav-text">重载内建隐含规则</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%80%81%E5%BC%8F%E9%A3%8E%E6%A0%BC%E7%9A%84%E2%80%9C%E5%90%8E%E7%BC%80%E8%A7%84%E5%88%99%E2%80%9D%C2%B6"><span class="nav-text">老式风格的“后缀规则”</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9A%90%E5%90%AB%E8%A7%84%E5%88%99%E6%90%9C%E7%B4%A2%E7%AE%97%E6%B3%95%C2%B6"><span class="nav-text">隐含规则搜索算法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%82%E8%80%83"><span class="nav-text">参考:</span></a></li></ol></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="lixp"
+      src="/images/avatar1.jpeg">
+  <p class="site-author-name" itemprop="name">lixp</p>
+  <div class="site-description" itemprop="description">好好把握现在，不为昨天而后悔，不为明天而担忧。</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">13</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/" title="GitHub → https:&#x2F;&#x2F;github.com" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:yourname@gmail.com" title="E-Mail → mailto:yourname@gmail.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+  <div class="cc-license animated" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="https://cdnjs.cloudflare.com/ajax/libs/creativecommons-vocabulary/2020.11.3/assets/license_badges/small/by_nc_sa.svg" alt="Creative Commons"></a>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://lixpbg.github.io/2023/06/12/makefile-9/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar1.jpeg">
+      <meta itemprop="name" content="lixp">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="lixp的博客">
+      <meta itemprop="description" content="好好把握现在，不为昨天而后悔，不为明天而担忧。">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="makefile隐含规则(九) | lixp的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          makefile隐含规则(九)
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2023-06-12 14:24:02 / 修改时间：14:31:17" itemprop="dateCreated datePublished" datetime="2023-06-12T14:24:02+08:00">2023-06-12</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%BC%96%E8%AF%91/" itemprop="url" rel="index"><span itemprop="name">编译</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+  
+  <span class="post-meta-item">
+    
+    <span class="post-meta-item-icon">
+      <i class="far fa-comment"></i>
+    </span>
+    <span class="post-meta-item-text">Valine：</span>
+  
+    <a title="valine" href="/2023/06/12/makefile-9/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2023/06/12/makefile-9/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h1 id="隐含规则¶"><a href="#隐含规则¶" class="headerlink" title="隐含规则¶"></a>隐含规则<a target="_blank" rel="noopener" href="https://seisman.github.io/how-to-write-makefile/implicit_rules.html#id1">¶</a></h1><p>在我们使用Makefile时，有一些我们会经常使用，而且使用频率非常高的东西，比如，我们编译C&#x2F;C++的源程序为中间目标文件（Unix下是 <code>.o</code> 文件，Windows下是 <code>.obj</code> 文件）。本章讲述的就是一些在Makefile中的“隐含的”，早先约定了的，不需要我们再写出来的规则。</p>
+<span id="more"></span>
+
+
+
+<p>“隐含规则”也就是一种惯例，make会按照这种“惯例”心照不喧地来运行，那怕我们的Makefile中没有书写这样的规则。例如，把 <code>.c</code> 文件编译成 <code>.o</code> 文件这一规则，你根本就不用写出来，make会自动推导出这种规则，并生成我们需要的 <code>.o</code> 文件。</p>
+<p>“隐含规则”会使用一些我们系统变量，我们可以改变这些系统变量的值来定制隐含规则的运行时的参数。如系统变量 <code>CFLAGS</code> 可以控制编译时的编译器参数。</p>
+<p>我们还可以通过“模式规则”的方式写下自己的隐含规则。用“后缀规则”来定义隐含规则会有许多的限制。使用“模式规则”会显得更智能和清楚，但“后缀规则”可以用来保证我们Makefile的兼容性。我们了解了“隐含规则”，可以让其为我们更好的服务，也会让我们知道一些“约定俗成”了的东西，而不至于使得我们在运行Makefile时出现一些我们觉得莫名其妙的东西。当然，任何事物都是矛盾的，水能载舟，亦可覆舟，所以，有时候“隐含规则”也会给我们造成不小的麻烦。只有了解了它，我们才能更好地使用它。</p>
+<h2 id="使用隐含规则¶"><a href="#使用隐含规则¶" class="headerlink" title="使用隐含规则¶"></a>使用隐含规则<a target="_blank" rel="noopener" href="https://seisman.github.io/how-to-write-makefile/implicit_rules.html#id2">¶</a></h2><p>如果要使用隐含规则生成你需要的目标，你所需要做的就是不要写出这个目标的规则。那么，make会试图去自动推导产生这个目标的规则和命令，如果 make可以自动推导生成这个目标的规则和命令，那么这个行为就是隐含规则的自动推导。当然，隐含规则是make事先约定好的一些东西。例如，我们有下面的一个Makefile：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">foo : foo.o bar.o</span><br><span class="line">    cc –o foo foo.o bar.o $(CFLAGS) $(LDFLAGS)</span><br></pre></td></tr></table></figure>
+
+<p>我们可以注意到，这个Makefile中并没有写下如何生成 <code>foo.o</code> 和 <code>bar.o</code> 这两目标的规则和命令。因为make的“隐含规则”功能会自动为我们自动去推导这两个目标的依赖目标和生成命令。</p>
+<p>make会在自己的“隐含规则”库中寻找可以用的规则，如果找到，那么就会使用。如果找不到，那么就会报错。在上面的那个例子中，make调用的隐含规则是，把 <code>.o</code> 的目标的依赖文件置成 <code>.c</code> ，并使用C的编译命令 <code>cc –c $(CFLAGS) foo.c</code> 来生成 <code>foo.o</code> 的目标。也就是说，我们完全没有必要写下下面的两条规则：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">foo.o : foo.c</span><br><span class="line">    cc –c foo.c $(CFLAGS)</span><br><span class="line">bar.o : bar.c</span><br><span class="line">    cc –c bar.c $(CFLAGS)</span><br></pre></td></tr></table></figure>
+
+<p>因为，这已经是“约定”好了的事了，make和我们约定好了用C编译器 <code>cc</code> 生成 <code>.o</code> 文件的规则，这就是隐含规则。</p>
+<p>当然，如果我们为 <code>.o</code> 文件书写了自己的规则，那么make就不会自动推导并调用隐含规则，它会按照我们写好的规则忠实地执行。</p>
+<p>还有，在make的“隐含规则库”中，每一条隐含规则都在库中有其顺序，越靠前的则是越被经常使用的，所以，这会导致我们有些时候即使我们显示地指定了目标依赖，make也不会管。如下面这条规则（没有命令）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">foo.o : foo.p</span><br></pre></td></tr></table></figure>
+
+<p>依赖文件 <code>foo.p</code> （Pascal程序的源文件）有可能变得没有意义。如果目录下存在了 <code>foo.c</code> 文件，那么我们的隐含规则一样会生效，并会通过 <code>foo.c</code> 调用C的编译器生成 <code>foo.o</code> 文件。因为，在隐含规则中，Pascal的规则出现在C的规则之后，所以，make找到可以生成 <code>foo.o</code> 的C的规则就不再寻找下一条规则了。如果你确实不希望任何隐含规则推导，那么，你就不要只写出“依赖规则”，而不写命令。</p>
+<h2 id="隐含规则一览¶"><a href="#隐含规则一览¶" class="headerlink" title="隐含规则一览¶"></a>隐含规则一览<a target="_blank" rel="noopener" href="https://seisman.github.io/how-to-write-makefile/implicit_rules.html#id3">¶</a></h2><p>这里我们将讲述所有预先设置（也就是make内建）的隐含规则，如果我们不明确地写下规则，那么，make就会在这些规则中寻找所需要规则和命令。当然，我们也可以使用make的参数 <code>-r</code> 或 <code>--no-builtin-rules</code> 选项来取消所有的预设置的隐含规则。</p>
+<p>当然，即使是我们指定了 <code>-r</code> 参数，某些隐含规则还是会生效，因为有许多的隐含规则都是使用了“后缀规则”来定义的，所以，只要隐含规则中有 “后缀列表”（也就一系统定义在目标 <code>.SUFFIXES</code> 的依赖目标），那么隐含规则就会生效。默认的后缀列表是：.out, .a, .ln, .o, .c, .cc, .C, .p, .f, .F, .r, .y, .l, .s, .S, .mod, .sym, .def, .h, .info, .dvi, .tex, .texinfo, .texi, .txinfo, .w, .ch .web, .sh, .elc, .el。具体的细节，我们会在后面讲述。</p>
+<p>还是先来看一看常用的隐含规则吧。</p>
+<ol>
+<li><p>编译C程序的隐含规则。</p>
+<p><code>&lt;n&gt;.o</code> 的目标的依赖目标会自动推导为 <code>&lt;n&gt;.c</code> ，并且其生成命令是 <code>$(CC) –c $(CPPFLAGS) $(CFLAGS)</code></p>
+</li>
+<li><p>编译C++程序的隐含规则。</p>
+<p><code>&lt;n&gt;.o</code> 的目标的依赖目标会自动推导为 <code>&lt;n&gt;.cc</code> 或是 <code>&lt;n&gt;.C</code> ，并且其生成命令是 <code>$(CXX) –c $(CPPFLAGS) $(CXXFLAGS)</code> 。（建议使用 <code>.cc</code> 作为C++源文件的后缀，而不是 <code>.C</code> ）</p>
+</li>
+<li><p>编译Pascal程序的隐含规则。</p>
+<p><code>&lt;n&gt;.o</code> 的目标的依赖目标会自动推导为 <code>&lt;n&gt;.p</code> ，并且其生成命令是 <code>$(PC) –c $(PFLAGS)</code> 。</p>
+</li>
+<li><p>编译Fortran&#x2F;Ratfor程序的隐含规则。</p>
+<p><code>&lt;n&gt;.o</code> 的目标的依赖目标会自动推导为 <code>&lt;n&gt;.r</code> 或 <code>&lt;n&gt;.F</code> 或 <code>&lt;n&gt;.f</code> ，并且其生成命令是:</p>
+<ul>
+<li><code>.f</code> <code>$(FC) –c $(FFLAGS)</code></li>
+<li><code>.F</code> <code>$(FC) –c $(FFLAGS) $(CPPFLAGS)</code></li>
+<li><code>.f</code> <code>$(FC) –c $(FFLAGS) $(RFLAGS)</code></li>
+</ul>
+</li>
+<li><p>预处理Fortran&#x2F;Ratfor程序的隐含规则。</p>
+<p><code>&lt;n&gt;.f</code> 的目标的依赖目标会自动推导为 <code>&lt;n&gt;.r</code> 或 <code>&lt;n&gt;.F</code> 。这个规则只是转换Ratfor 或有预处理的Fortran程序到一个标准的Fortran程序。其使用的命令是：</p>
+<ul>
+<li><code>.F</code> <code>$(FC) –F $(CPPFLAGS) $(FFLAGS)</code></li>
+<li><code>.r</code> <code>$(FC) –F $(FFLAGS) $(RFLAGS)</code></li>
+</ul>
+</li>
+<li><p>编译Modula-2程序的隐含规则。</p>
+<p><code>&lt;n&gt;.sym</code> 的目标的依赖目标会自动推导为 <code>&lt;n&gt;.def</code> ，并且其生成命令是： <code>$(M2C) $(M2FLAGS) $(DEFFLAGS)</code> 。 <code>&lt;n&gt;.o</code> 的目标的依赖目标会自动推导为 <code>&lt;n&gt;.mod</code> ，并且其生成命令是： <code>$(M2C) $(M2FLAGS) $(MODFLAGS)</code> 。</p>
+</li>
+<li><p>汇编和汇编预处理的隐含规则。</p>
+<p><code>&lt;n&gt;.o</code> 的目标的依赖目标会自动推导为 <code>&lt;n&gt;.s</code> ，默认使用编译器 <code>as</code> ，并且其生成命令是： <code>$ (AS) $(ASFLAGS)</code> 。 <code>&lt;n&gt;.s</code> 的目标的依赖目标会自动推导为 <code>&lt;n&gt;.S</code> ，默认使用C预编译器 <code>cpp</code> ，并且其生成命令是： <code>$(AS) $(ASFLAGS)</code> 。</p>
+</li>
+<li><p>链接Object文件的隐含规则。</p>
+<p><code>&lt;n&gt;</code> 目标依赖于 <code>&lt;n&gt;.o</code> ，通过运行C的编译器来运行链接程序生成（一般是 <code>ld</code> ），其生成命令是： <code>$(CC) $(LDFLAGS) &lt;n&gt;.o $(LOADLIBES) $(LDLIBS)</code> 。这个规则对于只有一个源文件的工程有效，同时也对多个Object文件（由不同的源文件生成）的也有效。例如如下规则:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">x : y.o z.o</span><br></pre></td></tr></table></figure>
+
+<p>并且 <code>x.c</code> 、 <code>y.c</code> 和 <code>z.c</code> 都存在时，隐含规则将执行如下命令:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">cc -c x.c -o x.o</span><br><span class="line">cc -c y.c -o y.o</span><br><span class="line">cc -c z.c -o z.o</span><br><span class="line">cc x.o y.o z.o -o x</span><br><span class="line">rm -f x.o</span><br><span class="line">rm -f y.o</span><br><span class="line">rm -f z.o</span><br></pre></td></tr></table></figure>
+
+<p>如果没有一个源文件（如上例中的x.c）和你的目标名字（如上例中的x）相关联，那么，你最好写出自己的生成规则，不然，隐含规则会报错的。</p>
+</li>
+<li><p>Yacc C程序时的隐含规则。</p>
+<p><code>&lt;n&gt;.c</code> 的依赖文件被自动推导为 <code>n.y</code> （Yacc生成的文件），其生成命令是： <code>$(YACC) $(YFALGS)</code> 。（“Yacc”是一个语法分析器，关于其细节请查看相关资料）</p>
+</li>
+<li><p>Lex C程序时的隐含规则。</p>
+<p><code>&lt;n&gt;.c</code> 的依赖文件被自动推导为 <code>n.l</code> （Lex生成的文件），其生成命令是： <code>$(LEX) $(LFALGS)</code> 。（关于“Lex”的细节请查看相关资料）</p>
+</li>
+<li><p>Lex Ratfor程序时的隐含规则。</p>
+<p><code>&lt;n&gt;.r</code> 的依赖文件被自动推导为 <code>n.l</code> （Lex生成的文件），其生成命令是： <code>$(LEX) $(LFALGS)</code> 。</p>
+</li>
+<li><p>从C程序、Yacc文件或Lex文件创建Lint库的隐含规则。</p>
+<p><code>&lt;n&gt;.ln</code> （lint生成的文件）的依赖文件被自动推导为 <code>n.c</code> ，其生成命令是： <code>$(LINT) $(LINTFALGS) $(CPPFLAGS) -i</code> 。对于 <code>&lt;n&gt;.y</code> 和 <code>&lt;n&gt;.l</code> 也是同样的规则。</p>
+</li>
+</ol>
+<h2 id="隐含规则使用的变量¶"><a href="#隐含规则使用的变量¶" class="headerlink" title="隐含规则使用的变量¶"></a>隐含规则使用的变量<a target="_blank" rel="noopener" href="https://seisman.github.io/how-to-write-makefile/implicit_rules.html#id4">¶</a></h2><p>在隐含规则中的命令中，基本上都是使用了一些预先设置的变量。你可以在你的makefile中改变这些变量的值，或是在make的命令行中传入这些值，或是在你的环境变量中设置这些值，无论怎么样，只要设置了这些特定的变量，那么其就会对隐含规则起作用。当然，你也可以利用make的 <code>-R</code> 或 <code>--no–builtin-variables</code> 参数来取消你所定义的变量对隐含规则的作用。</p>
+<p>例如，第一条隐含规则——编译C程序的隐含规则的命令是 <code>$(CC) –c $(CFLAGS) $(CPPFLAGS)</code> 。Make默认的编译命令是 <code>cc</code> ，如果你把变量 <code>$(CC)</code> 重定义成 <code>gcc</code> ，把变量 <code>$(CFLAGS)</code> 重定义成 <code>-g</code> ，那么，隐含规则中的命令全部会以 <code>gcc –c -g $(CPPFLAGS)</code> 的样子来执行了。</p>
+<p>我们可以把隐含规则中使用的变量分成两种：一种是命令相关的，如 <code>CC</code> ；一种是参数相的关，如 <code>CFLAGS</code> 。下面是所有隐含规则中会用到的变量：</p>
+<h3 id="关于命令的变量。¶"><a href="#关于命令的变量。¶" class="headerlink" title="关于命令的变量。¶"></a>关于命令的变量。<a target="_blank" rel="noopener" href="https://seisman.github.io/how-to-write-makefile/implicit_rules.html#id5">¶</a></h3><ul>
+<li><code>AR</code> : 函数库打包程序。默认命令是 <code>ar</code></li>
+<li><code>AS</code> : 汇编语言编译程序。默认命令是 <code>as</code></li>
+<li><code>CC</code> : C语言编译程序。默认命令是 <code>cc</code></li>
+<li><code>CXX</code> : C++语言编译程序。默认命令是 <code>g++</code></li>
+<li><code>CO</code> : 从 RCS文件中扩展文件程序。默认命令是 <code>co</code></li>
+<li><code>CPP</code> : C程序的预处理器（输出是标准输出设备）。默认命令是 <code>$(CC) –E</code></li>
+<li><code>FC</code> : Fortran 和 Ratfor 的编译器和预处理程序。默认命令是 <code>f77</code></li>
+<li><code>GET</code> : 从SCCS文件中扩展文件的程序。默认命令是 <code>get</code></li>
+<li><code>LEX</code> : Lex方法分析器程序（针对于C或Ratfor）。默认命令是 <code>lex</code></li>
+<li><code>PC</code> : Pascal语言编译程序。默认命令是 <code>pc</code></li>
+<li><code>YACC</code> : Yacc文法分析器（针对于C程序）。默认命令是 <code>yacc</code></li>
+<li><code>YACCR</code> : Yacc文法分析器（针对于Ratfor程序）。默认命令是 <code>yacc –r</code></li>
+<li><code>MAKEINFO</code> : 转换Texinfo源文件（.texi）到Info文件程序。默认命令是 <code>makeinfo</code></li>
+<li><code>TEX</code> : 从TeX源文件创建TeX DVI文件的程序。默认命令是 <code>tex</code></li>
+<li><code>TEXI2DVI</code> : 从Texinfo源文件创建军TeX DVI 文件的程序。默认命令是 <code>texi2dvi</code></li>
+<li><code>WEAVE</code> : 转换Web到TeX的程序。默认命令是 <code>weave</code></li>
+<li><code>CWEAVE</code> : 转换C Web 到 TeX的程序。默认命令是 <code>cweave</code></li>
+<li><code>TANGLE</code> : 转换Web到Pascal语言的程序。默认命令是 <code>tangle</code></li>
+<li><code>CTANGLE</code> : 转换C Web 到 C。默认命令是 <code>ctangle</code></li>
+<li><code>RM</code> : 删除文件命令。默认命令是 <code>rm –f</code></li>
+</ul>
+<h3 id="关于命令参数的变量¶"><a href="#关于命令参数的变量¶" class="headerlink" title="关于命令参数的变量¶"></a>关于命令参数的变量<a target="_blank" rel="noopener" href="https://seisman.github.io/how-to-write-makefile/implicit_rules.html#id6">¶</a></h3><p>下面的这些变量都是相关上面的命令的参数。如果没有指明其默认值，那么其默认值都是空。</p>
+<ul>
+<li><code>ARFLAGS</code> : 函数库打包程序AR命令的参数。默认值是 <code>rv</code></li>
+<li><code>ASFLAGS</code> : 汇编语言编译器参数。（当明显地调用 <code>.s</code> 或 <code>.S</code> 文件时）</li>
+<li><code>CFLAGS</code> : C语言编译器参数。</li>
+<li><code>CXXFLAGS</code> : C++语言编译器参数。</li>
+<li><code>COFLAGS</code> : RCS命令参数。</li>
+<li><code>CPPFLAGS</code> : C预处理器参数。（ C 和 Fortran 编译器也会用到）。</li>
+<li><code>FFLAGS</code> : Fortran语言编译器参数。</li>
+<li><code>GFLAGS</code> : SCCS “get”程序参数。</li>
+<li><code>LDFLAGS</code> : 链接器参数。（如： <code>ld</code> ）</li>
+<li><code>LFLAGS</code> : Lex文法分析器参数。</li>
+<li><code>PFLAGS</code> : Pascal语言编译器参数。</li>
+<li><code>RFLAGS</code> : Ratfor 程序的Fortran 编译器参数。</li>
+<li><code>YFLAGS</code> : Yacc文法分析器参数。</li>
+</ul>
+<h2 id="隐含规则链¶"><a href="#隐含规则链¶" class="headerlink" title="隐含规则链¶"></a>隐含规则链<a target="_blank" rel="noopener" href="https://seisman.github.io/how-to-write-makefile/implicit_rules.html#id7">¶</a></h2><p>有些时候，一个目标可能被一系列的隐含规则所作用。例如，一个 <code>.o</code> 的文件生成，可能会是先被 Yacc的[.y]文件先成 <code>.c</code> ，然后再被C的编译器生成。我们把这一系列的隐含规则叫做“隐含规则链”。</p>
+<p>在上面的例子中，如果文件 <code>.c</code> 存在，那么就直接调用C的编译器的隐含规则，如果没有 <code>.c</code> 文件，但有一个 <code>.y</code> 文件，那么Yacc的隐含规则会被调用，生成 <code>.c</code> 文件，然后，再调用C编译的隐含规则最终由 <code>.c</code> 生成 <code>.o</code> 文件，达到目标。</p>
+<p>我们把这种 <code>.c</code> 的文件（或是目标），叫做中间目标。不管怎么样，make会努力自动推导生成目标的一切方法，不管中间目标有多少，其都会执着地把所有的隐含规则和你书写的规则全部合起来分析，努力达到目标，所以，有些时候，可能会让你觉得奇怪，怎么我的目标会这样生成？怎么我的 makefile发疯了？</p>
+<p>在默认情况下，对于中间目标，它和一般的目标有两个地方所不同：第一个不同是除非中间的目标不存在，才会引发中间规则。第二个不同的是，只要目标成功产生，那么，产生最终目标过程中，所产生的中间目标文件会被以 <code>rm -f</code> 删除。</p>
+<p>通常，一个被makefile指定成目标或是依赖目标的文件不能被当作中介。然而，你可以明显地说明一个文件或是目标是中介目标，你可以使用伪目标 <code>.INTERMEDIATE</code> 来强制声明。（如： <code>.INTERMEDIATE : mid</code> ）</p>
+<p>你也可以阻止make自动删除中间目标，要做到这一点，你可以使用伪目标 <code>.SECONDARY</code> 来强制声明（如： <code>.SECONDARY : sec</code> ）。你还可以把你的目标，以模式的方式来指定（如： <code>%.o</code> ）成伪目标 <code>.PRECIOUS</code> 的依赖目标，以保存被隐含规则所生成的中间文件。</p>
+<p>在“隐含规则链”中，禁止同一个目标出现两次或两次以上，这样一来，就可防止在make自动推导时出现无限递归的情况。</p>
+<p>Make会优化一些特殊的隐含规则，而不生成中间文件。如，从文件 <code>foo.c</code> 生成目标程序 <code>foo</code> ，按道理，make会编译生成中间文件 <code>foo.o</code> ，然后链接成 <code>foo</code> ，但在实际情况下，这一动作可以被一条 <code>cc</code> 的命令完成（ <code>cc –o foo foo.c</code> ），于是优化过的规则就不会生成中间文件。</p>
+<h2 id="定义模式规则¶"><a href="#定义模式规则¶" class="headerlink" title="定义模式规则¶"></a>定义模式规则<a target="_blank" rel="noopener" href="https://seisman.github.io/how-to-write-makefile/implicit_rules.html#id8">¶</a></h2><p>你可以使用模式规则来定义一个隐含规则。一个模式规则就好像一个一般的规则，只是在规则中，目标的定义需要有 <code>%</code> 字符。 <code>%</code> 的意思是表示一个或多个任意字符。在依赖目标中同样可以使用 <code>%</code> ，只是依赖目标中的 <code>%</code> 的取值，取决于其目标。</p>
+<p>有一点需要注意的是， <code>%</code> 的展开发生在变量和函数的展开之后，变量和函数的展开发生在make载入 Makefile时，而模式规则中的 <code>%</code> 则发生在运行时。</p>
+<h3 id="模式规则介绍¶"><a href="#模式规则介绍¶" class="headerlink" title="模式规则介绍¶"></a>模式规则介绍<a target="_blank" rel="noopener" href="https://seisman.github.io/how-to-write-makefile/implicit_rules.html#id9">¶</a></h3><p>模式规则中，至少在规则的目标定义中要包含 <code>%</code> ，否则，就是一般的规则。目标中的 <code>%</code> 定义表示对文件名的匹配， <code>%</code> 表示长度任意的非空字符串。例如： <code>%.c</code> 表示以 <code>.c</code> 结尾的文件名（文件名的长度至少为3），而 <code>s.%.c</code> 则表示以 <code>s.</code> 开头， <code>.c</code> 结尾的文件名（文件名的长度至少为5）。</p>
+<p>如果 <code>%</code> 定义在目标中，那么，依赖中的 <code>%</code> 的值决定了目标中的 <code>%</code> 的值，也就是说，依赖中的模式的 <code>%</code> 决定了目标中 <code>%</code> 的样子。例如有一个模式规则如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">%.o : %.c ; &lt;command ......&gt;;</span><br></pre></td></tr></table></figure>
+
+<p>其含义是，指出了怎么从所有的 <code>.c</code> 文件生成相应的 <code>.o</code> 文件的规则。如果要生成的目标是 <code>a.o b.o</code> ，那么 <code>%c</code> 就是 <code>a.c b.c</code> 。</p>
+<p>一旦依赖目标中的 <code>%</code> 模式被确定，那么，make会被要求去匹配当前目录下所有的文件名，一旦找到，make就会规则下的命令，所以，在模式规则中，目标可能会是多个的，如果有模式匹配出多个目标，make就会产生所有的模式目标，此时，make关心的是依赖的文件名和生成目标的命令这两件事。</p>
+<h3 id="模式规则示例¶"><a href="#模式规则示例¶" class="headerlink" title="模式规则示例¶"></a>模式规则示例<a target="_blank" rel="noopener" href="https://seisman.github.io/how-to-write-makefile/implicit_rules.html#id10">¶</a></h3><p>下面这个例子表示了,把所有的 <code>.c</code> 文件都编译成 <code>.o</code> 文件.</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">%.o : %.c</span><br><span class="line">    $(CC) -c $(CFLAGS) $(CPPFLAGS) $&lt; -o $@</span><br></pre></td></tr></table></figure>
+
+<p>其中， <code>$@</code> 表示所有的目标的挨个值， <code>$&lt;</code> 表示了所有依赖目标的挨个值。这些奇怪的变量我们叫“自动化变量”，后面会详细讲述。</p>
+<p>下面的这个例子中有两个目标是模式的：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">%.tab.c %.tab.h: %.y</span><br><span class="line">    bison -d $&lt;</span><br></pre></td></tr></table></figure>
+
+<p>这条规则告诉make把所有的 <code>.y</code> 文件都以 <code>bison -d &lt;n&gt;.y</code> 执行，然后生成 <code>&lt;n&gt;.tab.c</code> 和 <code>&lt;n&gt;.tab.h</code> 文件。（其中， <code>&lt;n&gt;</code> 表示一个任意字符串）。如果我们的执行程序 <code>foo</code> 依赖于文件 <code>parse.tab.o</code> 和 <code>scan.o</code> ，并且文件 <code>scan.o</code> 依赖于文件 <code>parse.tab.h</code> ，如果 <code>parse.y</code> 文件被更新了，那么根据上述的规则， <code>bison -d parse.y</code> 就会被执行一次，于是， <code>parse.tab.o</code> 和 <code>scan.o</code> 的依赖文件就齐了。（假设， <code>parse.tab.o</code> 由 <code>parse.tab.c</code> 生成，和 <code>scan.o</code> 由 <code>scan.c</code> 生成，而 <code>foo</code> 由 <code>parse.tab.o</code> 和 <code>scan.o</code> 链接生成，而且 <code>foo</code> 和其 <code>.o</code> 文件的依赖关系也写好，那么，所有的目标都会得到满足）</p>
+<h3 id="自动化变量¶"><a href="#自动化变量¶" class="headerlink" title="自动化变量¶"></a>自动化变量<a target="_blank" rel="noopener" href="https://seisman.github.io/how-to-write-makefile/implicit_rules.html#id11">¶</a></h3><p>在上述的模式规则中，目标和依赖文件都是一系例的文件，那么我们如何书写一个命令来完成从不同的依赖文件生成相应的目标？因为在每一次的对模式规则的解析时，都会是不同的目标和依赖文件。</p>
+<p>自动化变量就是完成这个功能的。在前面，我们已经对自动化变量有所提涉，相信你看到这里已对它有一个感性认识了。所谓自动化变量，就是这种变量会把模式中所定义的一系列的文件自动地挨个取出，直至所有的符合模式的文件都取完了。这种自动化变量只应出现在规则的命令中。</p>
+<p>下面是所有的自动化变量及其说明：</p>
+<ul>
+<li><code>$@</code> : 表示规则中的目标文件集。在模式规则中，如果有多个目标，那么， <code>$@</code> 就是匹配于目标中模式定义的集合。</li>
+<li><code>$%</code> : 仅当目标是函数库文件中，表示规则中的目标成员名。例如，如果一个目标是 <code>foo.a(bar.o)</code> ，那么， <code>$%</code> 就是 <code>bar.o</code> ， <code>$@</code> 就是 <code>foo.a</code> 。如果目标不是函数库文件（Unix下是 <code>.a</code> ，Windows下是 <code>.lib</code> ），那么，其值为空。</li>
+<li><code>$&lt;</code> : 依赖目标中的第一个目标名字。如果依赖目标是以模式（即 <code>%</code> ）定义的，那么 <code>$&lt;</code> 将是符合模式的一系列的文件集。注意，其是一个一个取出来的。</li>
+<li><code>$?</code> : 所有比目标新的依赖目标的集合。以空格分隔。</li>
+<li><code>$^</code> : 所有的依赖目标的集合。以空格分隔。如果在依赖目标中有多个重复的，那么这个变量会去除重复的依赖目标，只保留一份。</li>
+<li><code>$+</code> : 这个变量很像 <code>$^</code> ，也是所有依赖目标的集合。只是它不去除重复的依赖目标。</li>
+<li><code>$*</code> : 这个变量表示目标模式中 <code>%</code> 及其之前的部分。如果目标是 <code>dir/a.foo.b</code> ，并且目标的模式是 <code>a.%.b</code> ，那么， <code>$*</code> 的值就是 <code>dir/foo</code> 。这个变量对于构造有关联的文件名是比较有效。如果目标中没有模式的定义，那么 <code>$*</code> 也就不能被推导出，但是，如果目标文件的后缀是make所识别的，那么 <code>$*</code> 就是除了后缀的那一部分。例如：如果目标是 <code>foo.c</code> ，因为 <code>.c</code> 是make所能识别的后缀名，所以， <code>$*</code> 的值就是 <code>foo</code> 。这个特性是GNU make的，很有可能不兼容于其它版本的make，所以，你应该尽量避免使用 <code>$*</code> ，除非是在隐含规则或是静态模式中。如果目标中的后缀是make所不能识别的，那么 <code>$*</code> 就是空值。</li>
+</ul>
+<p>当你希望只对更新过的依赖文件进行操作时， <code>$?</code> 在显式规则中很有用，例如，假设有一个函数库文件叫 <code>lib</code> ，其由其它几个object文件更新。那么把object文件打包的比较有效率的Makefile规则是：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">lib : foo.o bar.o lose.o win.o</span><br><span class="line">    ar r lib $?</span><br></pre></td></tr></table></figure>
+
+<p>在上述所列出来的自动量变量中。四个变量（ <code>$@</code> 、 <code>$&lt;</code> 、 <code>$%</code> 、 <code>$*</code> ）在扩展时只会有一个文件，而另三个的值是一个文件列表。这七个自动化变量还可以取得文件的目录名或是在当前目录下的符合模式的文件名，只需要搭配上 <code>D</code> 或 <code>F</code> 字样。这是GNU make中老版本的特性，在新版本中，我们使用函数 <code>dir</code> 或 <code>notdir</code> 就可以做到了。 <code>D</code> 的含义就是Directory，就是目录， <code>F</code> 的含义就是File，就是文件。</p>
+<p>下面是对于上面的七个变量分别加上 <code>D</code> 或是 <code>F</code> 的含义：</p>
+<ul>
+<li><p><code>$(@D)</code></p>
+<p>表示 <code>$@</code> 的目录部分（不以斜杠作为结尾），如果 <code>$@</code> 值是 <code>dir/foo.o</code> ，那么 <code>$(@D)</code> 就是 <code>dir</code> ，而如果 <code>$@</code> 中没有包含斜杠的话，其值就是 <code>.</code> （当前目录）。</p>
+</li>
+<li><p><code>$(@F)</code></p>
+<p>表示 <code>$@</code> 的文件部分，如果 <code>$@</code> 值是 <code>dir/foo.o</code> ，那么 <code>$(@F)</code> 就是 <code>foo.o</code> ， <code>$(@F)</code> 相当于函数 <code>$(notdir $@)</code> 。</p>
+</li>
+<li><p><code>$(*D)</code>, <code>$(*F)</code></p>
+<p>和上面所述的同理，也是取文件的目录部分和文件部分。对于上面的那个例子， <code>$(*D)</code> 返回 <code>dir</code> ，而 <code>$(*F)</code> 返回 <code>foo</code></p>
+</li>
+<li><p><code>$(%D)</code>, <code>$(%F)</code></p>
+<p>分别表示了函数包文件成员的目录部分和文件部分。这对于形同 <code>archive(member)</code> 形式的目标中的 <code>member</code> 中包含了不同的目录很有用。</p>
+</li>
+<li><p><code>$(&lt;D)</code>, <code>$(&lt;F)</code></p>
+<p>分别表示依赖文件的目录部分和文件部分。</p>
+</li>
+<li><p><code>$(^D)</code>, <code>$(^F)</code></p>
+<p>分别表示所有依赖文件的目录部分和文件部分。（无相同的）</p>
+</li>
+<li><p><code>$(+D)</code>, <code>$(+F)</code></p>
+<p>分别表示所有依赖文件的目录部分和文件部分。（可以有相同的）</p>
+</li>
+<li><p><code>$(?D)</code>, <code>$(?F)</code></p>
+<p>分别表示被更新的依赖文件的目录部分和文件部分。</p>
+</li>
+</ul>
+<p>最后想提醒一下的是，对于 <code>$&lt;</code> ，为了避免产生不必要的麻烦，我们最好给 <code>$</code> 后面的那个特定字符都加上圆括号，比如， <code>$(&lt;)</code> 就要比 <code>$&lt;</code> 要好一些。</p>
+<p>还得要注意的是，这些变量只使用在规则的命令中，而且一般都是“显式规则”和“静态模式规则”（参见前面“书写规则”一章）。其在隐含规则中并没有意义。</p>
+<h3 id="模式的匹配¶"><a href="#模式的匹配¶" class="headerlink" title="模式的匹配¶"></a>模式的匹配<a target="_blank" rel="noopener" href="https://seisman.github.io/how-to-write-makefile/implicit_rules.html#id12">¶</a></h3><p>一般来说，一个目标的模式有一个有前缀或是后缀的 <code>%</code> ，或是没有前后缀，直接就是一个 <code>%</code> 。因为 <code>%</code> 代表一个或多个字符，所以在定义好了的模式中，我们把 <code>%</code> 所匹配的内容叫做“茎”，例如 <code>%.c</code> 所匹配的文件“test.c”中“test”就是“茎”。因为在目标和依赖目标中同时有 <code>%</code> 时，依赖目标的“茎”会传给目标，当做目标中的“茎”。</p>
+<p>当一个模式匹配包含有斜杠（实际也不经常包含）的文件时，那么在进行模式匹配时，目录部分会首先被移开，然后进行匹配，成功后，再把目录加回去。在进行“茎”的传递时，我们需要知道这个步骤。例如有一个模式 <code>e%t</code> ，文件 <code>src/eat</code> 匹配于该模式，于是 <code>src/a</code> 就是其“茎”，如果这个模式定义在依赖目标中，而被依赖于这个模式的目标中又有个模式 <code>c%r</code> ，那么，目标就是 <code>src/car</code> 。（“茎”被传递）</p>
+<h3 id="重载内建隐含规则¶"><a href="#重载内建隐含规则¶" class="headerlink" title="重载内建隐含规则¶"></a>重载内建隐含规则<a target="_blank" rel="noopener" href="https://seisman.github.io/how-to-write-makefile/implicit_rules.html#id13">¶</a></h3><p>你可以重载内建的隐含规则（或是定义一个全新的），例如你可以重新构造和内建隐含规则不同的命令，如：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">%.o : %.c</span><br><span class="line">    $(CC) -c $(CPPFLAGS) $(CFLAGS) -D$(date)</span><br></pre></td></tr></table></figure>
+
+<p>你可以取消内建的隐含规则，只要不在后面写命令就行。如：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">%.o : %.s</span><br></pre></td></tr></table></figure>
+
+<p>同样，你也可以重新定义一个全新的隐含规则，其在隐含规则中的位置取决于你在哪里写下这个规则。朝前的位置就靠前。</p>
+<h2 id="老式风格的“后缀规则”¶"><a href="#老式风格的“后缀规则”¶" class="headerlink" title="老式风格的“后缀规则”¶"></a>老式风格的“后缀规则”<a target="_blank" rel="noopener" href="https://seisman.github.io/how-to-write-makefile/implicit_rules.html#id14">¶</a></h2><p>后缀规则是一个比较老式的定义隐含规则的方法。后缀规则会被模式规则逐步地取代。因为模式规则更强更清晰。为了和老版本的Makefile兼容，GNU make同样兼容于这些东西。后缀规则有两种方式：“双后缀”和“单后缀”。</p>
+<p>双后缀规则定义了一对后缀：目标文件的后缀和依赖目标（源文件）的后缀。如 <code>.c.o</code> 相当于 <code>%o : %c</code> 。单后缀规则只定义一个后缀，也就是源文件的后缀。如 <code>.c</code> 相当于 <code>% : %.c</code> 。</p>
+<p>后缀规则中所定义的后缀应该是make所认识的，如果一个后缀是make所认识的，那么这个规则就是单后缀规则，而如果两个连在一起的后缀都被make所认识，那就是双后缀规则。例如： <code>.c</code> 和 <code>.o</code> 都是make所知道。因而，如果你定义了一个规则是 <code>.c.o</code> 那么其就是双后缀规则，意义就是 <code>.c</code> 是源文件的后缀， <code>.o</code> 是目标文件的后缀。如下示例：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">.c.o:</span><br><span class="line">    $(CC) -c $(CFLAGS) $(CPPFLAGS) -o $@ $&lt;</span><br></pre></td></tr></table></figure>
+
+<p>后缀规则不允许任何的依赖文件，如果有依赖文件的话，那就不是后缀规则，那些后缀统统被认为是文件名，如：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">.c.o: foo.h</span><br><span class="line">    $(CC) -c $(CFLAGS) $(CPPFLAGS) -o $@ $&lt;</span><br></pre></td></tr></table></figure>
+
+<p>这个例子，就是说，文件 <code>.c.o</code> 依赖于文件 <code>foo.h</code> ，而不是我们想要的这样：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">%.o: %.c foo.h</span><br><span class="line">    $(CC) -c $(CFLAGS) $(CPPFLAGS) -o $@ $&lt;</span><br></pre></td></tr></table></figure>
+
+<p>后缀规则中，如果没有命令，那是毫无意义的。因为他也不会移去内建的隐含规则。</p>
+<p>而要让make知道一些特定的后缀，我们可以使用伪目标 <code>.SUFFIXES</code> 来定义或是删除，如：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">.SUFFIXES: .hack .win</span><br></pre></td></tr></table></figure>
+
+<p>把后缀 <code>.hack</code> 和 <code>.win</code> 加入后缀列表中的末尾。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">.SUFFIXES:              # 删除默认的后缀</span><br><span class="line">.SUFFIXES: .c .o .h   # 定义自己的后缀</span><br></pre></td></tr></table></figure>
+
+<p>先清除默认后缀，后定义自己的后缀列表。</p>
+<p>make的参数 <code>-r</code> 或 <code>-no-builtin-rules</code> 也会使用得默认的后缀列表为空。而变量 <code>SUFFIXE</code> 被用来定义默认的后缀列表，你可以用 <code>.SUFFIXES</code> 来改变后缀列表，但请不要改变变量 <code>SUFFIXE</code> 的值。</p>
+<h2 id="隐含规则搜索算法¶"><a href="#隐含规则搜索算法¶" class="headerlink" title="隐含规则搜索算法¶"></a>隐含规则搜索算法<a target="_blank" rel="noopener" href="https://seisman.github.io/how-to-write-makefile/implicit_rules.html#id15">¶</a></h2><p>比如我们有一个目标叫 T。下面是搜索目标T的规则的算法。请注意，在下面，我们没有提到后缀规则，原因是，所有的后缀规则在Makefile被载入内存时，会被转换成模式规则。如果目标是 <code>archive(member)</code> 的函数库文件模式，那么这个算法会被运行两次，第一次是找目标T，如果没有找到的话，那么进入第二次，第二次会把 <code>member</code> 当作T来搜索。</p>
+<ol>
+<li>把T的目录部分分离出来。叫D，而剩余部分叫N。（如：如果T是 <code>src/foo.o</code> ，那么，D就是 <code>src/</code> ，N就是 <code>foo.o</code> ）</li>
+<li>创建所有匹配于T或是N的模式规则列表。</li>
+<li>如果在模式规则列表中有匹配所有文件的模式，如 <code>%</code> ，那么从列表中移除其它的模式。</li>
+<li>移除列表中没有命令的规则。</li>
+<li>对于第一个在列表中的模式规则：<ol>
+<li>推导其“茎”S，S应该是T或是N匹配于模式中 <code>%</code> 非空的部分。</li>
+<li>计算依赖文件。把依赖文件中的 <code>%</code> 都替换成“茎”S。如果目标模式中没有包含斜框字符，而把D加在第一个依赖文件的开头。</li>
+<li>测试是否所有的依赖文件都存在或是理当存在。（如果有一个文件被定义成另外一个规则的目标文件，或者是一个显式规则的依赖文件，那么这个文件就叫“理当存在”）</li>
+<li>如果所有的依赖文件存在或是理当存在，或是就没有依赖文件。那么这条规则将被采用，退出该算法。</li>
+</ol>
+</li>
+<li>如果经过第5步，没有模式规则被找到，那么就做更进一步的搜索。对于存在于列表中的第一个模式规则：<ol>
+<li>如果规则是终止规则，那就忽略它，继续下一条模式规则。</li>
+<li>计算依赖文件。（同第5步）</li>
+<li>测试所有的依赖文件是否存在或是理当存在。</li>
+<li>对于不存在的依赖文件，递归调用这个算法查找他是否可以被隐含规则找到。</li>
+<li>如果所有的依赖文件存在或是理当存在，或是就根本没有依赖文件。那么这条规则被采用，退出该算法。</li>
+<li>如果没有隐含规则可以使用，查看 <code>.DEFAULT</code> 规则，如果有，采用，把 <code>.DEFAULT</code> 的命令给T使用。</li>
+</ol>
+</li>
+</ol>
+<p>一旦规则被找到，就会执行其相当的命令，而此时，我们的自动化变量的值才会生成。</p>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考:"></a>参考:</h3><p>转载于: <a target="_blank" rel="noopener" href="https://seisman.github.io/how-to-write-makefile/index.html">https://seisman.github.io/how-to-write-makefile/index.html</a></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          
+
+<div class="post-copyright">
+<ul>
+  <li class="post-copyright-author">
+      <strong>本文作者： </strong>lixp
+  </li>
+  <li class="post-copyright-link">
+      <strong>本文链接：</strong>
+      <a href="https://lixpbg.github.io/2023/06/12/makefile-9/" title="makefile隐含规则(九)">https://lixpbg.github.io/2023/06/12/makefile-9/</a>
+  </li>
+  <li class="post-copyright-license">
+      <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/%E7%BC%96%E8%AF%91/" rel="tag"># 编译</a>
+              <a href="/tags/make/" rel="tag"># make</a>
+              <a href="/tags/makefile/" rel="tag"># makefile</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2023/06/12/makefile-8/" rel="prev" title="makefile的运行(八)">
+                  <i class="fa fa-chevron-left"></i> makefile的运行(八)
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2023/06/12/makefile-10/" rel="next" title="使用make更新函数库文件(十)">
+                  使用make更新函数库文件(十) <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments" id="valine-comments"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">lixp</span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+<script>
+NexT.utils.loadComments('#valine-comments', () => {
+  NexT.utils.getScript('https://cdn.jsdelivr.net/npm/valine@1.4.14/dist/Valine.min.js', () => {
+    new Valine(Object.assign({"enable":true,"appId":"fIktuOrxwICBeX5vyIUmBfbg-gzGzoHsz","appKey":"4zjWsoWvygeHMVrYUx4v9ekh","serverURLs":"https://fiktuorx.lc-cn-n1-shared.com","placeholder":"撰写评论","avatar":"mm","meta":["nick","mail","link"],"pageSize":10,"lang":"zh-CN","visitor":false,"comment_count":true,"recordIP":false,"enableQQ":false,"requiredFields":[]}, {
+      el: '#valine-comments',
+      path: "/2023/06/12/makefile-9/",
+      serverURLs: "https://fiktuorx.lc-cn-n1-shared.com"
+    }));
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

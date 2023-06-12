@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha256-HtsXJanqjKTc8vVQjO4YMhiqFoXkfBsjBWcX91T1jr8=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"lixpbg.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.15.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"flat"},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"valine","storage":true,"lazyload":false,"nav":null,"activeClass":"valine"},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="使用条件判断¶使用条件判断，可以让make根据运行时的不同情况选择不同的执行分支。条件表达式可以是比较变量的值，或是比较变量和常量的值。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="makefile使用条件判断(六)">
+<meta property="og:url" content="https://lixpbg.github.io/2023/06/12/makefile-6/index.html">
+<meta property="og:site_name" content="lixp的博客">
+<meta property="og:description" content="使用条件判断¶使用条件判断，可以让make根据运行时的不同情况选择不同的执行分支。条件表达式可以是比较变量的值，或是比较变量和常量的值。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-06-12T06:18:58.000Z">
+<meta property="article:modified_time" content="2023-06-12T06:20:51.007Z">
+<meta property="article:author" content="lixp">
+<meta property="article:tag" content="编译">
+<meta property="article:tag" content="make">
+<meta property="article:tag" content="makefile">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://lixpbg.github.io/2023/06/12/makefile-6/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://lixpbg.github.io/2023/06/12/makefile-6/","path":"2023/06/12/makefile-6/","title":"makefile使用条件判断(六)"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>makefile使用条件判断(六) | lixp的博客</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">lixp的博客</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">每天进步一点点</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E6%9D%A1%E4%BB%B6%E5%88%A4%E6%96%AD%C2%B6"><span class="nav-text">使用条件判断</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B%C2%B6"><span class="nav-text">示例</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%AD%E6%B3%95%C2%B6"><span class="nav-text">语法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%82%E8%80%83"><span class="nav-text">参考:</span></a></li></ol></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="lixp"
+      src="/images/avatar1.jpeg">
+  <p class="site-author-name" itemprop="name">lixp</p>
+  <div class="site-description" itemprop="description">好好把握现在，不为昨天而后悔，不为明天而担忧。</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">13</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/" title="GitHub → https:&#x2F;&#x2F;github.com" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:yourname@gmail.com" title="E-Mail → mailto:yourname@gmail.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+  <div class="cc-license animated" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="https://cdnjs.cloudflare.com/ajax/libs/creativecommons-vocabulary/2020.11.3/assets/license_badges/small/by_nc_sa.svg" alt="Creative Commons"></a>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://lixpbg.github.io/2023/06/12/makefile-6/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar1.jpeg">
+      <meta itemprop="name" content="lixp">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="lixp的博客">
+      <meta itemprop="description" content="好好把握现在，不为昨天而后悔，不为明天而担忧。">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="makefile使用条件判断(六) | lixp的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          makefile使用条件判断(六)
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2023-06-12 14:18:58 / 修改时间：14:20:51" itemprop="dateCreated datePublished" datetime="2023-06-12T14:18:58+08:00">2023-06-12</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%BC%96%E8%AF%91/" itemprop="url" rel="index"><span itemprop="name">编译</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+  
+  <span class="post-meta-item">
+    
+    <span class="post-meta-item-icon">
+      <i class="far fa-comment"></i>
+    </span>
+    <span class="post-meta-item-text">Valine：</span>
+  
+    <a title="valine" href="/2023/06/12/makefile-6/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2023/06/12/makefile-6/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h1 id="使用条件判断¶"><a href="#使用条件判断¶" class="headerlink" title="使用条件判断¶"></a>使用条件判断<a target="_blank" rel="noopener" href="https://seisman.github.io/how-to-write-makefile/conditionals.html#id1">¶</a></h1><p>使用条件判断，可以让make根据运行时的不同情况选择不同的执行分支。条件表达式可以是比较变量的值，或是比较变量和常量的值。</p>
+<span id="more"></span>
+
+
+
+<h2 id="示例¶"><a href="#示例¶" class="headerlink" title="示例¶"></a>示例<a target="_blank" rel="noopener" href="https://seisman.github.io/how-to-write-makefile/conditionals.html#id2">¶</a></h2><p>下面的例子，判断 <code>$(CC)</code> 变量是否 <code>gcc</code> ，如果是的话，则使用GNU函数编译目标。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">libs_for_gcc = -lgnu</span><br><span class="line">normal_libs =</span><br><span class="line"></span><br><span class="line">foo: $(objects)</span><br><span class="line">ifeq ($(CC),gcc)</span><br><span class="line">    $(CC) -o foo $(objects) $(libs_for_gcc)</span><br><span class="line">else</span><br><span class="line">    $(CC) -o foo $(objects) $(normal_libs)</span><br><span class="line">endif</span><br></pre></td></tr></table></figure>
+
+<p>可见，在上面示例的这个规则中，目标 <code>foo</code> 可以根据变量 <code>$(CC)</code> 值来选取不同的函数库来编译程序。</p>
+<p>我们可以从上面的示例中看到三个关键字： <code>ifeq</code> 、 <code>else</code> 和 <code>endif</code> 。 <code>ifeq</code> 的意思表示条件语句的开始，并指定一个条件表达式，表达式包含两个参数，以逗号分隔，表达式以圆括号括起。 <code>else</code> 表示条件表达式为假的情况。 <code>endif</code> 表示一个条件语句的结束，任何一个条件表达式都应该以 <code>endif</code> 结束。</p>
+<p>当我们的变量 <code>$(CC)</code> 值是 <code>gcc</code> 时，目标 <code>foo</code> 的规则是：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">foo: $(objects)</span><br><span class="line">    $(CC) -o foo $(objects) $(libs_for_gcc)</span><br></pre></td></tr></table></figure>
+
+<p>而当我们的变量 <code>$(CC)</code> 值不是 <code>gcc</code> 时（比如 <code>cc</code> ），目标 <code>foo</code> 的规则是：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">foo: $(objects)</span><br><span class="line">    $(CC) -o foo $(objects) $(normal_libs)</span><br></pre></td></tr></table></figure>
+
+<p>当然，我们还可以把上面的那个例子写得更简洁一些：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">libs_for_gcc = -lgnu</span><br><span class="line">normal_libs =</span><br><span class="line"></span><br><span class="line">ifeq ($(CC),gcc)</span><br><span class="line">    libs=$(libs_for_gcc)</span><br><span class="line">else</span><br><span class="line">    libs=$(normal_libs)</span><br><span class="line">endif</span><br><span class="line"></span><br><span class="line">foo: $(objects)</span><br><span class="line">    $(CC) -o foo $(objects) $(libs)</span><br></pre></td></tr></table></figure>
+
+<h2 id="语法¶"><a href="#语法¶" class="headerlink" title="语法¶"></a>语法<a target="_blank" rel="noopener" href="https://seisman.github.io/how-to-write-makefile/conditionals.html#id3">¶</a></h2><p>条件表达式的语法为:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&lt;conditional-directive&gt;</span><br><span class="line">&lt;text-if-true&gt;</span><br><span class="line">endif</span><br></pre></td></tr></table></figure>
+
+<p>以及:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;conditional-directive&gt;</span><br><span class="line">&lt;text-if-true&gt;</span><br><span class="line">else</span><br><span class="line">&lt;text-if-false&gt;</span><br><span class="line">endif</span><br></pre></td></tr></table></figure>
+
+<p>其中 <code>&lt;conditional-directive&gt;</code> 表示条件关键字，如 <code>ifeq</code> 。这个关键字有四个。</p>
+<p>第一个是我们前面所见过的 <code>ifeq</code></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">ifeq (&lt;arg1&gt;, &lt;arg2&gt;)</span><br><span class="line">ifeq &#x27;&lt;arg1&gt;&#x27; &#x27;&lt;arg2&gt;&#x27;</span><br><span class="line">ifeq &quot;&lt;arg1&gt;&quot; &quot;&lt;arg2&gt;&quot;</span><br><span class="line">ifeq &quot;&lt;arg1&gt;&quot; &#x27;&lt;arg2&gt;&#x27;</span><br><span class="line">ifeq &#x27;&lt;arg1&gt;&#x27; &quot;&lt;arg2&gt;&quot;</span><br></pre></td></tr></table></figure>
+
+<p>比较参数 <code>arg1</code> 和 <code>arg2</code> 的值是否相同。当然，参数中我们还可以使用make的函数。如:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ifeq ($(strip $(foo)),)</span><br><span class="line">&lt;text-if-empty&gt;</span><br><span class="line">endif</span><br></pre></td></tr></table></figure>
+
+<p>这个示例中使用了 <code>strip</code> 函数，如果这个函数的返回值是空（Empty），那么 <code>&lt;text-if-empty&gt;</code> 就生效。</p>
+<p>第二个条件关键字是 <code>ifneq</code> 。语法是：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">ifneq (&lt;arg1&gt;, &lt;arg2&gt;)</span><br><span class="line">ifneq &#x27;&lt;arg1&gt;&#x27; &#x27;&lt;arg2&gt;&#x27;</span><br><span class="line">ifneq &quot;&lt;arg1&gt;&quot; &quot;&lt;arg2&gt;&quot;</span><br><span class="line">ifneq &quot;&lt;arg1&gt;&quot; &#x27;&lt;arg2&gt;&#x27;</span><br><span class="line">ifneq &#x27;&lt;arg1&gt;&#x27; &quot;&lt;arg2&gt;&quot;</span><br></pre></td></tr></table></figure>
+
+<p>其比较参数 <code>arg1</code> 和 <code>arg2</code> 的值是否相同，如果不同，则为真。和 <code>ifeq</code> 类似。</p>
+<p>第三个条件关键字是 <code>ifdef</code> 。语法是：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ifdef &lt;variable-name&gt;</span><br></pre></td></tr></table></figure>
+
+<p>如果变量 <code>&lt;variable-name&gt;</code> 的值非空，那到表达式为真。否则，表达式为假。当然， <code>&lt;variable-name&gt;</code> 同样可以是一个函数的返回值。注意， <code>ifdef</code> 只是测试一个变量是否有值，其并不会把变量扩展到当前位置。还是来看两个例子：</p>
+<p>示例一：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">bar =</span><br><span class="line">foo = $(bar)</span><br><span class="line">ifdef foo</span><br><span class="line">    frobozz = yes</span><br><span class="line">else</span><br><span class="line">    frobozz = no</span><br><span class="line">endif</span><br></pre></td></tr></table></figure>
+
+<p>示例二：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">foo =</span><br><span class="line">ifdef foo</span><br><span class="line">    frobozz = yes</span><br><span class="line">else</span><br><span class="line">    frobozz = no</span><br><span class="line">endif</span><br></pre></td></tr></table></figure>
+
+<p>第一个例子中， <code>$(frobozz)</code> 值是 <code>yes</code> ，第二个则是 <code>no</code>。</p>
+<p>第四个条件关键字是 <code>ifndef</code> 。其语法是：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ifndef &lt;variable-name&gt;</span><br></pre></td></tr></table></figure>
+
+<p>这个我就不多说了，和 <code>ifdef</code> 是相反的意思。</p>
+<p>在 <code>&lt;conditional-directive&gt;</code> 这一行上，多余的空格是被允许的，但是不能以 <code>Tab</code> 键作为开始（不然就被认为是命令）。而注释符 <code>#</code> 同样也是安全的。 <code>else</code> 和 <code>endif</code> 也一样，只要不是以 <code>Tab</code> 键开始就行了。</p>
+<p>特别注意的是，make是在读取Makefile时就计算条件表达式的值，并根据条件表达式的值来选择语句，所以，你最好不要把自动化变量（如 <code>$@</code> 等）放入条件表达式中，因为自动化变量是在运行时才有的。</p>
+<p>而且为了避免混乱，make不允许把整个条件语句分成两部分放在不同的文件中。</p>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考:"></a>参考:</h3><p>转载于: <a target="_blank" rel="noopener" href="https://seisman.github.io/how-to-write-makefile/index.html">https://seisman.github.io/how-to-write-makefile/index.html</a></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          
+
+<div class="post-copyright">
+<ul>
+  <li class="post-copyright-author">
+      <strong>本文作者： </strong>lixp
+  </li>
+  <li class="post-copyright-link">
+      <strong>本文链接：</strong>
+      <a href="https://lixpbg.github.io/2023/06/12/makefile-6/" title="makefile使用条件判断(六)">https://lixpbg.github.io/2023/06/12/makefile-6/</a>
+  </li>
+  <li class="post-copyright-license">
+      <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/%E7%BC%96%E8%AF%91/" rel="tag"># 编译</a>
+              <a href="/tags/make/" rel="tag"># make</a>
+              <a href="/tags/makefile/" rel="tag"># makefile</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2023/06/12/makefile-5/" rel="prev" title="makefile使用变量(五)">
+                  <i class="fa fa-chevron-left"></i> makefile使用变量(五)
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2023/06/12/makefile-7/" rel="next" title="makefile使用函数(七)">
+                  makefile使用函数(七) <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments" id="valine-comments"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">lixp</span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+<script>
+NexT.utils.loadComments('#valine-comments', () => {
+  NexT.utils.getScript('https://cdn.jsdelivr.net/npm/valine@1.4.14/dist/Valine.min.js', () => {
+    new Valine(Object.assign({"enable":true,"appId":"fIktuOrxwICBeX5vyIUmBfbg-gzGzoHsz","appKey":"4zjWsoWvygeHMVrYUx4v9ekh","serverURLs":"https://fiktuorx.lc-cn-n1-shared.com","placeholder":"撰写评论","avatar":"mm","meta":["nick","mail","link"],"pageSize":10,"lang":"zh-CN","visitor":false,"comment_count":true,"recordIP":false,"enableQQ":false,"requiredFields":[]}, {
+      el: '#valine-comments',
+      path: "/2023/06/12/makefile-6/",
+      serverURLs: "https://fiktuorx.lc-cn-n1-shared.com"
+    }));
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>
